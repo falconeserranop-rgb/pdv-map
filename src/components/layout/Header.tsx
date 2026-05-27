@@ -19,13 +19,11 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <div className="bg-white rounded-lg px-3 py-1.5 shadow-md">
-            <img
-              src="/mobil-logo.png"
-              alt="Mobil"
-              className="h-8 w-auto object-contain"
-            />
-          </div>
+          <img
+            src="/mobil-logo.png"
+            alt="Mobil"
+            className="h-11 w-auto object-contain"
+          />
         </div>
 
         {/* Center: title (desktop only) */}
