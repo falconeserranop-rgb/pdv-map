@@ -170,9 +170,7 @@ export function PDVDetailPage() {
 
         {/* Trust footer */}
         <div className="flex items-center gap-3 glass-card rounded-xl px-4 py-3">
-          <div className="bg-white rounded-md px-2 py-1 shrink-0">
-            <img src="/mad4performance-logo.png" alt="Mad4Performance" className="h-5 w-auto object-contain" />
-          </div>
+          <img src="/mad4performance-logo.png" alt="Mad4Performance" className="h-8 w-auto object-contain shrink-0" />
           <p className="text-xs text-white/40 flex-1">
             Este establecimiento es distribuidor autorizado de{' '}
             <strong className="text-white/60">Lubricante Mobil Original</strong> en Venezuela.

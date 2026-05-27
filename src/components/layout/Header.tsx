@@ -39,13 +39,11 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
 
         {/* Right: Mad4Performance logo */}
         <div className="flex items-center">
-          <div className="bg-white rounded-lg px-2.5 py-1 flex items-center shadow-sm">
-            <img
-              src="/mad4performance-logo.png"
-              alt="Mad4Performance"
-              className="h-6 w-auto object-contain"
-            />
-          </div>
+          <img
+            src="/mad4performance-logo.png"
+            alt="Mad4Performance"
+            className="h-9 w-auto object-contain"
+          />
         </div>
       </div>
     </header>
