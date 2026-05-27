@@ -22,7 +22,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           <img
             src="/mobil-logo.png"
             alt="Mobil"
-            className="h-8 w-auto object-contain"
+            className="h-10 w-auto object-contain drop-shadow-sm"
           />
         </div>
 
