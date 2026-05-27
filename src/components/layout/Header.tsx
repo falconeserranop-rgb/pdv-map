@@ -19,16 +19,18 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <img
-            src="/mobil-logo.png"
-            alt="Mobil"
-            className="h-10 w-auto object-contain drop-shadow-sm"
-          />
+          <div className="bg-white rounded-lg px-3 py-1.5 shadow-md">
+            <img
+              src="/mobil-logo.png"
+              alt="Mobil"
+              className="h-8 w-auto object-contain"
+            />
+          </div>
         </div>
 
         {/* Center: title (desktop only) */}
         <div className="hidden md:flex flex-col items-center">
-          <span className="font-display font-bold text-base tracking-widest text-white/80 uppercase">
+          <span className="font-display font-bold text-lg tracking-widest text-white/90 uppercase">
             Puntos de Venta Autorizados
           </span>
           <div className="flex items-center gap-1.5 text-xs text-white/40">
@@ -42,7 +44,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           <img
             src="/mad4performance-logo.png"
             alt="Mad4Performance"
-            className="h-9 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </div>
       </div>
