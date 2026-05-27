@@ -22,7 +22,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           <img
             src="/mobil-logo.png"
             alt="Mobil"
-            className="h-11 w-auto object-contain"
+            className="h-14 w-auto object-contain"
           />
         </div>
 
@@ -42,7 +42,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           <img
             src="/mad4performance-logo.png"
             alt="Mad4Performance"
-            className="h-10 w-auto object-contain"
+            className="h-14 w-auto object-contain"
           />
         </div>
       </div>
