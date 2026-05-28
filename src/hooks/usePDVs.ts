@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { haversineKm } from '../lib/geo'
 import type { GeoPosition } from './useGeolocation'
 
-export function usePDVs(userPosition: GeoPosition | null, sortMode: SortMode, search: string, zone: string) {
+export function usePDVs(userPosition: GeoPosition | null, sortMode: SortMode, search: string) {
   const [pdvs, setPdvs] = useState<PDV[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -44,10 +44,6 @@ export function usePDVs(userPosition: GeoPosition | null, sortMode: SortMode, se
       )
     }
 
-    if (zone) {
-      list = list.filter((p) => p.zona === zone)
-    }
-
     if (userPosition && sortMode === 'nearest') {
       list = list
         .map((p) => ({
@@ -63,7 +59,7 @@ export function usePDVs(userPosition: GeoPosition | null, sortMode: SortMode, se
     }
 
     return list
-  }, [pdvs, userPosition, sortMode, search, zone])
+  }, [pdvs, userPosition, sortMode, search])
 
   return { pdvs: filtered, loading }
 }

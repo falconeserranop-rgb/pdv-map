@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { List } from 'lucide-react'
 import { Header } from '../components/layout/Header'
 import { Banner } from '../components/layout/Banner'
 import { Sidebar } from '../components/sidebar/Sidebar'
@@ -11,14 +12,13 @@ import { haversineKm } from '../lib/geo'
 export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
-  const [zone, setZone] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { status: geoStatus, position, retry } = useGeolocation()
-  const { pdvs, loading } = usePDVs(position, sortMode, search, zone)
+  const { pdvs, loading } = usePDVs(position, sortMode, search)
 
-  // When geo is granted, switch to nearest sort and select nearest
+  // Switch sort mode when geo changes
   useEffect(() => {
     if (geoStatus === 'granted') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -37,7 +37,7 @@ export function MapPage() {
     })[0] ?? null
   }, [position, pdvs])
 
-  // Auto-select nearest when geo is granted
+  // Auto-select nearest when geo is first granted
   useEffect(() => {
     if (nearestPDV && geoStatus === 'granted' && !selectedPDV) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -47,7 +47,7 @@ export function MapPage() {
 
   const handleSelectPDV = (pdv: PDV) => {
     setSelectedPDV(pdv)
-    setSidebarOpen(false) // close mobile sidebar on selection
+    setSidebarOpen(false)
   }
 
   return (
@@ -81,12 +81,10 @@ export function MapPage() {
             sortMode={sortMode}
             geoStatus={geoStatus}
             search={search}
-            zone={zone}
             loading={loading}
             onSelectPDV={handleSelectPDV}
             onSortChange={setSortMode}
             onSearchChange={setSearch}
-            onZoneChange={setZone}
             onRetryGeo={retry}
           />
         </div>
@@ -100,6 +98,18 @@ export function MapPage() {
             userPosition={position}
             onSelectPDV={handleSelectPDV}
           />
+
+          {/* Mobile FAB — show list */}
+          {!sidebarOpen && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-5 py-3 rounded-full shadow-lg transition-all"
+              style={{ boxShadow: '0 4px 20px rgba(204,0,0,0.5)' }}
+            >
+              <List size={16} />
+              Ver lista
+            </button>
+          )}
         </div>
       </div>
     </div>

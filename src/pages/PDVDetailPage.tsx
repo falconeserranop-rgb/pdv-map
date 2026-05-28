@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { ShieldCheck, Navigation2, Share2, MapPin, ArrowLeft, Phone, AtSign, Clock } from 'lucide-react'
+import { ShieldCheck, Navigation2, Share2, MapPin, ArrowLeft, Phone, AtSign, Clock, Sun, Moon } from 'lucide-react'
 import type { PDV } from '../types'
 import { LOCAL_PDVS } from '../data/pdvs-seed'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { googleMapsUrl, whatsappShareUrl } from '../lib/geo'
+import { useTheme } from '../context/ThemeContext'
 
 function createPDVIcon() {
   const html = `<div class="pdv-marker-wrap"><div class="pdv-marker-dot"></div></div>`
@@ -16,6 +17,7 @@ function createPDVIcon() {
 
 export function PDVDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const { theme, toggleTheme } = useTheme()
   const [pdv, setPdv] = useState<PDV | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -67,7 +69,17 @@ export function PDVDetailPage() {
             <ArrowLeft size={16} />
             Volver al mapa
           </Link>
-          <img src="/mobil-logo.png" alt="Mobil" className="h-8 w-auto" />
+          <img src="/mobil-logo.png" alt="Mobil" className="h-10 w-auto" />
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          >
+            {theme === 'dark'
+              ? <Sun size={17} className="text-white/50" />
+              : <Moon size={17} className="text-white/50" />
+            }
+          </button>
         </div>
       </header>
 
@@ -162,7 +174,14 @@ export function PDVDetailPage() {
               attributionControl={false}
               className="h-full w-full"
             >
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" subdomains="abcd" />
+              <TileLayer
+                key={theme}
+                url={theme === 'light'
+                  ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+                  : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                }
+                subdomains="abcd"
+              />
               <Marker position={[pdv.latitud, pdv.longitud]} icon={createPDVIcon()} />
             </MapContainer>
           </div>
