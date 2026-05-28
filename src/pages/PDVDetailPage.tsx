@@ -62,7 +62,7 @@ export function PDVDetailPage() {
   return (
     <div className="min-h-screen bg-carbon-950 flex flex-col">
       {/* Header */}
-      <header className="bg-carbon-900 border-b border-white/10">
+      <header className="force-dark bg-carbon-900 border-b border-white/10">
         <div className="racing-stripe" />
         <div className="flex items-center justify-between px-4 h-14">
           <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors">
@@ -177,7 +177,7 @@ export function PDVDetailPage() {
               <TileLayer
                 key={theme}
                 url={theme === 'light'
-                  ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+                  ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
                   : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
                 }
                 subdomains="abcd"

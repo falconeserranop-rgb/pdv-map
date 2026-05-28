@@ -7,6 +7,12 @@ ALTER TABLE pdvs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE import_logs ENABLE ROW LEVEL SECURITY;
 
+-- Borrar políticas existentes antes de recrear (para poder correr múltiples veces)
+DROP POLICY IF EXISTS "public_read_active_pdvs" ON pdvs;
+DROP POLICY IF EXISTS "admin_all_pdvs" ON pdvs;
+DROP POLICY IF EXISTS "admin_all_audit_logs" ON audit_logs;
+DROP POLICY IF EXISTS "admin_all_import_logs" ON import_logs;
+
 -- Público: solo puede leer PDVs activos
 CREATE POLICY "public_read_active_pdvs"
   ON pdvs FOR SELECT

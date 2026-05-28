@@ -13,7 +13,10 @@ export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Open sidebar by default on mobile so users see the list immediately
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 768
+  )
 
   const { status: geoStatus, position, retry } = useGeolocation()
   const { pdvs, loading } = usePDVs(position, sortMode, search)
@@ -99,12 +102,12 @@ export function MapPage() {
             onSelectPDV={handleSelectPDV}
           />
 
-          {/* Mobile FAB — show list */}
+          {/* Mobile FAB — show list (fixed so Leaflet can't block it) */}
           {!sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-5 py-3 rounded-full shadow-lg transition-all"
-              style={{ boxShadow: '0 4px 20px rgba(204,0,0,0.5)' }}
+              className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-6 py-3.5 rounded-full transition-all"
+              style={{ boxShadow: '0 4px 24px rgba(204,0,0,0.6)' }}
             >
               <List size={16} />
               Ver lista

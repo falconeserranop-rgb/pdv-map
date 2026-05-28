@@ -10,7 +10,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <header className="relative z-20 bg-carbon-900 border-b border-white/10 shadow-lg">
+    <header className="force-dark relative z-20 bg-carbon-900 border-b border-white/10 shadow-lg">
       <div className="racing-stripe" />
       <div className="flex items-center justify-between px-3 sm:px-4 h-14">
 

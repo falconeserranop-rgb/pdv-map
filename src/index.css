@@ -152,6 +152,36 @@ html, body, #root {
 [data-theme="light"] input::placeholder { color: rgba(17,24,39,0.40) !important; }
 [data-theme="light"] .placeholder\:text-white\/30::placeholder { color: rgba(17,24,39,0.40) !important; }
 
+/* ─── Light theme: force-dark sections (header, banners) ─── */
+[data-theme="light"] .force-dark {
+  --color-carbon-950: #06060A;
+  --color-carbon-900: #0A0A0F;
+  --color-carbon-800: #111118;
+  --color-carbon-700: #1A1A24;
+  --color-carbon-600: #22222F;
+}
+[data-theme="light"] .force-dark .text-white         { color: rgba(255,255,255,1.0)   !important; }
+[data-theme="light"] .force-dark .text-white\/90     { color: rgba(255,255,255,0.90)  !important; }
+[data-theme="light"] .force-dark .text-white\/70     { color: rgba(255,255,255,0.70)  !important; }
+[data-theme="light"] .force-dark .text-white\/60     { color: rgba(255,255,255,0.60)  !important; }
+[data-theme="light"] .force-dark .text-white\/50     { color: rgba(255,255,255,0.50)  !important; }
+[data-theme="light"] .force-dark .text-white\/40     { color: rgba(255,255,255,0.40)  !important; }
+[data-theme="light"] .force-dark .text-white\/30     { color: rgba(255,255,255,0.30)  !important; }
+[data-theme="light"] .force-dark .text-white\/20     { color: rgba(255,255,255,0.20)  !important; }
+[data-theme="light"] .force-dark .border-white\/10   { border-color: rgba(255,255,255,0.10) !important; }
+[data-theme="light"] .force-dark .border-white\/5    { border-color: rgba(255,255,255,0.05) !important; }
+[data-theme="light"] .force-dark .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.10) !important; }
+[data-theme="light"] .force-dark .hover\:bg-white\/15:hover { background-color: rgba(255,255,255,0.15) !important; }
+
+/* ─── Light theme: always-white text on brand-color backgrounds ─── */
+[data-theme="light"] .bg-mobil-red,
+[data-theme="light"] .bg-mobil-red\/80,
+[data-theme="light"] .bg-mobil-red-light,
+[data-theme="light"] .bg-mobil-blue,
+[data-theme="light"] .bg-mobil-blue-light,
+[data-theme="light"] [class*="bg-mobil-red"],
+[data-theme="light"] [class*="bg-mobil-blue"] { color: #ffffff !important; }
+
 /* ─── Light theme: cards/panels ─── */
 [data-theme="light"] .glass-card {
   background: rgba(255,255,255,0.97);

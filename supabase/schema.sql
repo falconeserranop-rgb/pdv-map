@@ -31,6 +31,7 @@ RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS pdvs_updated_at ON pdvs;
 CREATE TRIGGER pdvs_updated_at
   BEFORE UPDATE ON pdvs
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();

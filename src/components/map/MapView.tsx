@@ -62,8 +62,9 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
     ? [userPosition.lat, userPosition.lon]
     : [10.48, -66.88]
 
+  // Voyager = light coloured tiles with full road/building detail
   const tileUrl = theme === 'light'
-    ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 
   return (

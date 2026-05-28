@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   LogOut, Plus, Upload, Download, Search, MapPin, CheckCircle,
   XCircle, AlertCircle, Edit2, Trash2, ToggleLeft, ToggleRight,
-  BarChart2, Map
+  BarChart2, Map, LocateFixed, Loader
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import type { PDV, PDVFormData, ImportResult, ZoneStats } from '../../types'
@@ -23,6 +23,7 @@ export function DashboardPage() {
   const [showImport, setShowImport] = useState(false)
   const [editingPDV, setEditingPDV] = useState<PDV | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'ok' | 'err' } | null>(null)
+  const [gpsLoadingId, setGpsLoadingId] = useState<string | null>(null)
   const navigate = useNavigate()
 
   function showToast(msg: string, type: 'ok' | 'err' = 'ok') {
@@ -114,6 +115,36 @@ export function DashboardPage() {
     }
     await loadPDVs()
     showToast(`${pdv.nombre} eliminado`, 'err')
+  }
+
+  async function handleQuickGPS(pdv: PDV) {
+    if (!navigator.geolocation) { showToast('GPS no disponible en este dispositivo', 'err'); return }
+    setGpsLoadingId(pdv.id)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(8))
+        const lng = parseFloat(pos.coords.longitude.toFixed(8))
+        try {
+          if (isSupabaseConfigured) {
+            const { error } = await supabase.from('pdvs').update({ latitud: lat, longitud: lng }).eq('id', pdv.id)
+            if (error) throw new Error(error.message)
+          } else {
+            setPdvs((list) => list.map((p) => p.id === pdv.id ? { ...p, latitud: lat, longitud: lng } : p))
+          }
+          await loadPDVs()
+          showToast(`Ubicación de ${pdv.nombre} guardada`)
+        } catch (e: unknown) {
+          showToast(e instanceof Error ? e.message : 'Error al guardar ubicación', 'err')
+        } finally {
+          setGpsLoadingId(null)
+        }
+      },
+      () => {
+        showToast('No se pudo obtener la ubicación GPS. Verifica los permisos.', 'err')
+        setGpsLoadingId(null)
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
   }
 
   async function handleImport(records: PDVFormData[]): Promise<ImportResult> {
@@ -362,10 +393,24 @@ export function DashboardPage() {
                     <p className="text-sm text-white/80 font-medium truncate">{pdv.nombre}</p>
                     <p className="text-xs text-white/30">{pdv.zona}</p>
                   </div>
-                  <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
-                    className="flex items-center gap-1.5 text-xs text-mobil-blue hover:text-white border border-mobil-blue/30 hover:bg-mobil-blue/20 rounded-lg px-3 py-1.5 transition-colors">
-                    <Edit2 size={11} /> Añadir ubicación
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleQuickGPS(pdv)}
+                      disabled={gpsLoadingId === pdv.id}
+                      title="Usar mi ubicación GPS actual"
+                      className="flex items-center gap-1.5 text-xs text-green-400 hover:text-white border border-green-500/30 hover:bg-green-500/20 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+                    >
+                      {gpsLoadingId === pdv.id
+                        ? <Loader size={11} className="animate-spin" />
+                        : <LocateFixed size={11} />
+                      }
+                      <span className="hidden sm:inline">Mi GPS</span>
+                    </button>
+                    <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
+                      className="flex items-center gap-1.5 text-xs text-mobil-blue hover:text-white border border-mobil-blue/30 hover:bg-mobil-blue/20 rounded-lg px-3 py-1.5 transition-colors">
+                      <Edit2 size={11} /> <span className="hidden sm:inline">Añadir en mapa</span><span className="sm:hidden">Mapa</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
