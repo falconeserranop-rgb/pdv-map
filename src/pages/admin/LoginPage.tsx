@@ -118,6 +118,9 @@ export function LoginPage() {
         <p className="text-center text-xs text-white/20">
           Mad4Performance x Mobil &mdash; Sistema de Gestion PDV
         </p>
+        <p className="text-center text-[10px] text-white/20">
+          Supabase: {isSupabaseConfigured ? 'OK' : 'NO CONFIGURADO'}
+        </p>
       </div>
     </div>
   )
