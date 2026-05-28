@@ -25,7 +25,7 @@ export function LoginPage() {
     setLoading(false)
 
     if (authError) {
-      setError('Credenciales incorrectas. Verifica tu email y contrasena.')
+      setError(authError.message)
     } else {
       navigate('/admin/dashboard')
     }
