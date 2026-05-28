@@ -25,7 +25,7 @@ export function LoginPage() {
     setLoading(false)
 
     if (authError) {
-      setError(authError.message)
+      setError('Credenciales incorrectas. Verifica tu email y contrasena.')
     } else {
       navigate('/admin/dashboard')
     }
@@ -117,9 +117,6 @@ export function LoginPage() {
 
         <p className="text-center text-xs text-white/20">
           Mad4Performance x Mobil &mdash; Sistema de Gestion PDV
-        </p>
-        <p className="text-center text-[10px] text-white/20">
-          Supabase: {isSupabaseConfigured ? 'OK' : 'NO CONFIGURADO'}
         </p>
       </div>
     </div>
