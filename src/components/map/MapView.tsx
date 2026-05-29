@@ -5,12 +5,13 @@ import 'leaflet/dist/leaflet.css'
 import type { PDV } from '../../types'
 import { PDVPopup } from './PDVPopup'
 import type { GeoPosition } from '../../hooks/useGeolocation'
+import { useTheme } from '../../context/ThemeContext'
 
-// Single high-detail tile URL for both themes.
-// Dark mode appearance is handled entirely by CSS:
-//   [data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) ... }
-// Markers/popups/circles live in separate Leaflet panes → not filtered.
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+// Light mode: Voyager (colorful, warm)
+// Dark mode:  Positron (light gray, detailed — great contrast against dark UI)
+const VOYAGER  = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+const POSITRON = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -58,6 +59,9 @@ interface MapViewProps {
 }
 
 export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectPDV }: MapViewProps) {
+  const { theme } = useTheme()
+  const tileUrl = theme === 'dark' ? POSITRON : VOYAGER
+
   const withCoords = pdvs.filter((p) => p.latitud != null && p.longitud != null)
 
   const center: [number, number] = nearestPDV?.latitud
@@ -73,9 +77,11 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
       className="h-full w-full"
       zoomControl={true}
     >
+      {/* key={theme} forces tile re-load when switching themes */}
       <TileLayer
-        url={TILE_URL}
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+        key={theme}
+        url={tileUrl}
+        attribution={ATTRIBUTION}
         subdomains="abcd"
         maxZoom={19}
       />
@@ -85,10 +91,7 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
       {/* User location */}
       {userPosition && (
         <>
-          <Marker
-            position={[userPosition.lat, userPosition.lon]}
-            icon={createUserIcon()}
-          />
+          <Marker position={[userPosition.lat, userPosition.lon]} icon={createUserIcon()} />
           <Circle
             center={[userPosition.lat, userPosition.lon]}
             radius={300}

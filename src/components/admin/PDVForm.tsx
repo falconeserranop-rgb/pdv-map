@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import type { PDV, PDVFormData } from '../../types'
 import { slugify } from '../../lib/geo'
 import { HorarioBuilder } from './HorarioBuilder'
+import { useTheme } from '../../context/ThemeContext'
 
 interface PDVFormProps {
   pdv?: PDV | null
@@ -64,6 +65,7 @@ function LocationSelector({
 }
 
 export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
+  const { theme } = useTheme()
   const [form, setForm] = useState<PDVFormData>(empty)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -246,10 +248,14 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
                   zoomControl={true}
                   attributionControl={false}
                 >
-                  {/* Voyager tiles — CSS dark-mode inversion applies automatically */}
                   <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    key={theme}
+                    url={theme === 'dark'
+                      ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+                      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+                    }
                     subdomains="abcd"
+                    maxZoom={19}
                   />
                   <LocationSelector position={mapCenter} onSelect={handleMapSelect} />
                 </MapContainer>

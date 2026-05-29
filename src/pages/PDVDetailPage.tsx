@@ -186,10 +186,14 @@ export function PDVDetailPage() {
               attributionControl={false}
               className="h-full w-full"
             >
-              {/* Same Voyager tiles for both modes; CSS handles dark inversion */}
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                key={theme}
+                url={theme === 'dark'
+                  ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+                  : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+                }
                 subdomains="abcd"
+                maxZoom={19}
               />
               <Marker position={[pdv.latitud, pdv.longitud]} icon={createPDVIcon()} />
             </MapContainer>
