@@ -13,7 +13,7 @@ export function PDVPopup({ pdv, isNearest }: PDVPopupProps) {
   const lon = pdv.longitud!
 
   return (
-    <div className="w-72 animate-fade-up">
+    <div className="force-dark w-72 animate-fade-up">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-white/10">
         {isNearest && (
