@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   LogOut, Plus, Upload, Download, Search, MapPin, CheckCircle,
   XCircle, AlertCircle, Edit2, Trash2,
-  BarChart2, Map, LocateFixed, Loader
+  BarChart2, Map, LocateFixed, Loader, Link2, Copy, Share2, X
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import type { PDV, PDVFormData, ImportResult, ZoneStats } from '../../types'
@@ -24,6 +24,8 @@ export function DashboardPage() {
   const [editingPDV, setEditingPDV] = useState<PDV | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'ok' | 'err' } | null>(null)
   const [gpsLoadingId, setGpsLoadingId] = useState<string | null>(null)
+  const [generatingLinkId, setGeneratingLinkId] = useState<string | null>(null)
+  const [linkModal, setLinkModal] = useState<{ pdvNombre: string; url: string } | null>(null)
   const navigate = useNavigate()
 
   function showToast(msg: string, type: 'ok' | 'err' = 'ok') {
@@ -145,6 +147,28 @@ export function DashboardPage() {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     )
+  }
+
+  async function handleGenerateLink(pdv: PDV) {
+    if (!isSupabaseConfigured) {
+      showToast('Esta función requiere Supabase configurado', 'err')
+      return
+    }
+    setGeneratingLinkId(pdv.id)
+    try {
+      const { data, error } = await supabase
+        .from('location_tokens')
+        .insert({ pdv_id: pdv.id })
+        .select('token')
+        .single()
+      if (error) throw new Error(error.message)
+      const url = `${window.location.origin}/ubicar/${(data as { token: string }).token}`
+      setLinkModal({ pdvNombre: pdv.nombre, url })
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : 'Error al generar el link', 'err')
+    } finally {
+      setGeneratingLinkId(null)
+    }
   }
 
   async function handleImport(records: PDVFormData[]): Promise<ImportResult> {
@@ -432,8 +456,20 @@ export function DashboardPage() {
                       <span className="hidden sm:inline">Mi GPS</span>
                     </button>
                     <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
-                      className="flex items-center gap-1.5 text-xs text-white bg-mobil-blue hover:bg-mobil-blue-light rounded-lg px-3 py-1.5 transition-colors">
-                      <Edit2 size={11} /> <span className="hidden sm:inline">Añadir en mapa</span><span className="sm:hidden">Mapa</span>
+                      className="flex items-center gap-1.5 text-xs text-white bg-mobil-blue hover:bg-mobil-blue-light rounded-lg px-2.5 py-1.5 transition-colors">
+                      <Edit2 size={11} /> <span className="hidden sm:inline">Mapa</span>
+                    </button>
+                    <button
+                      onClick={() => handleGenerateLink(pdv)}
+                      disabled={generatingLinkId === pdv.id}
+                      title="Generar link de un solo uso para que el cliente registre su ubicación"
+                      className="flex items-center gap-1.5 text-xs text-white bg-mobil-red hover:bg-mobil-red-light rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+                    >
+                      {generatingLinkId === pdv.id
+                        ? <Loader size={11} className="animate-spin" />
+                        : <Link2 size={11} />
+                      }
+                      <span className="hidden sm:inline">Link cliente</span>
                     </button>
                   </div>
                 </div>
@@ -442,6 +478,86 @@ export function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Link modal */}
+      {linkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setLinkModal(null)} />
+          <div className="relative w-full max-w-sm bg-carbon-800 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-mobil-red/15 flex items-center justify-center shrink-0">
+                  <Link2 size={14} className="text-mobil-red" />
+                </div>
+                <div>
+                  <h2 className="font-display font-semibold text-white text-sm">Link de ubicación generado</h2>
+                  <p className="text-xs text-white/40 mt-0.5 truncate max-w-[200px]">{linkModal.pdvNombre}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setLinkModal(null)}
+                className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors shrink-0"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-white/50 leading-relaxed">
+                Envía este enlace al cliente para que registre la ubicación de su establecimiento desde su teléfono.
+              </p>
+
+              {/* URL box */}
+              <div className="bg-carbon-700/60 border border-white/10 rounded-xl px-4 py-3">
+                <p className="text-[10px] text-white/30 mb-1.5 font-medium uppercase tracking-wider">Enlace</p>
+                <p className="text-xs text-white/80 break-all font-mono leading-relaxed">{linkModal.url}</p>
+              </div>
+
+              {/* Warning */}
+              <div className="flex items-start gap-2">
+                <AlertCircle size={12} className="text-yellow-500/70 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-white/35">
+                  Uso único · Expira en 7 días · El cliente no necesita cuenta para acceder
+                </p>
+              </div>
+
+              {/* Action buttons */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(linkModal.url)
+                    showToast('Link copiado al portapapeles')
+                  }}
+                  className="flex items-center justify-center gap-1.5 text-xs text-white bg-carbon-700 hover:bg-carbon-600 rounded-lg py-2.5 transition-colors font-medium"
+                >
+                  <Copy size={12} />
+                  Copiar link
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Hola! Para registrar la ubicación de *${linkModal.pdvNombre}* en el mapa, ingresa a este enlace (de uso único):\n\n${linkModal.url}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 text-xs text-white bg-[#25D366] hover:bg-[#1da851] rounded-lg py-2.5 transition-colors font-medium"
+                >
+                  <Share2 size={12} />
+                  WhatsApp
+                </a>
+              </div>
+
+              <button
+                onClick={() => setLinkModal(null)}
+                className="w-full text-xs text-white/40 hover:text-white/70 py-1.5 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {showForm && (
