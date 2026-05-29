@@ -8,7 +8,7 @@ import {
   Navigation2, Clock, ArrowLeft, AtSign, Phone as PhoneIcon, Link2,
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
-import { HORARIOS_LIST } from '../lib/horarios'
+import { HorarioBuilder } from '../components/admin/HorarioBuilder'
 
 type PageState = 'loading' | 'valid' | 'used' | 'expired' | 'invalid' | 'success'
 
@@ -493,20 +493,7 @@ export function LocationCapturePage() {
                 <label className="flex items-center gap-1.5 text-xs text-white/50">
                   <Clock size={11} /> Horario de atención
                 </label>
-                <select
-                  value={horario}
-                  onChange={(e) => setHorario(e.target.value)}
-                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-xl px-3.5 py-3 outline-none focus:border-mobil-blue/50 transition-all"
-                >
-                  <option value="">Sin especificar</option>
-                  {HORARIOS_LIST.map((h) => (
-                    <option key={h} value={h}>{h}</option>
-                  ))}
-                  {/* Keep existing value if it's a legacy free-text entry */}
-                  {horario && !HORARIOS_LIST.includes(horario) && (
-                    <option value={horario}>{horario}</option>
-                  )}
-                </select>
+                <HorarioBuilder value={horario} onChange={setHorario} compact />
               </div>
             </div>
 

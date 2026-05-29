@@ -8,6 +8,7 @@ import type { PDV } from '../types'
 import { LOCAL_PDVS } from '../data/pdvs-seed'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { googleMapsUrl, whatsappShareUrl } from '../lib/geo'
+import { formatHorarioLines } from '../lib/horario-utils'
 import { useTheme } from '../context/ThemeContext'
 
 function createPDVIcon() {
@@ -115,12 +116,19 @@ export function PDVDetailPage() {
             {/* Contact info */}
             {(pdv.horario || pdv.telefono || pdv.instagram) && (
               <div className="space-y-2 pt-3 border-t border-white/10">
-                {pdv.horario && (
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <Clock size={14} className="text-white/40" />
-                    {pdv.horario}
-                  </div>
-                )}
+                {pdv.horario && (() => {
+                  const lines = formatHorarioLines(pdv.horario)
+                  return lines.length > 0 ? (
+                    <div className="flex gap-2 text-sm text-white/60">
+                      <Clock size={14} className="text-white/40 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        {lines.map((l) => (
+                          <p key={l} className="text-sm text-white/60">{l}</p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null
+                })()}
                 {pdv.telefono && (
                   <a href={`https://wa.me/${pdv.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm text-green-400">

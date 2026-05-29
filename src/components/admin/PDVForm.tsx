@@ -5,7 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PDV, PDVFormData } from '../../types'
 import { slugify } from '../../lib/geo'
-import { HORARIOS_LIST } from '../../lib/horarios'
+import { HorarioBuilder } from './HorarioBuilder'
 
 interface PDVFormProps {
   pdv?: PDV | null
@@ -285,17 +285,9 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-xs text-white/50">Horario de atenci&oacute;n</label>
-              <select value={form.horario} onChange={(e) => set('horario', e.target.value)}
-                className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all">
-                <option value="">Sin especificar</option>
-                {HORARIOS_LIST.map((h) => <option key={h} value={h}>{h}</option>)}
-                {/* Preserve any legacy free-text value that doesn't match a preset */}
-                {form.horario && !HORARIOS_LIST.includes(form.horario) && (
-                  <option value={form.horario}>{form.horario} (personalizado)</option>
-                )}
-              </select>
+              <HorarioBuilder value={form.horario} onChange={(v) => set('horario', v)} />
             </div>
           </div>
 

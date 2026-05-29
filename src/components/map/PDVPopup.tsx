@@ -1,6 +1,7 @@
 import { ExternalLink, Navigation2, Share2, MapPin, Phone, AtSign, Clock } from 'lucide-react'
 import type { PDV } from '../../types'
 import { googleMapsUrl, whatsappShareUrl, formatDistance } from '../../lib/geo'
+import { formatHorarioCompact } from '../../lib/horario-utils'
 
 interface PDVPopupProps {
   pdv: PDV
@@ -44,12 +45,15 @@ export function PDVPopup({ pdv, isNearest }: PDVPopupProps) {
       {/* Extra info */}
       {(pdv.horario || pdv.telefono || pdv.instagram) && (
         <div className="px-4 py-2.5 border-b border-white/10 space-y-1.5">
-          {pdv.horario && (
-            <div className="flex items-center gap-2 text-xs text-white/60">
-              <Clock size={11} className="text-white/40" />
-              <span>{pdv.horario}</span>
-            </div>
-          )}
+          {pdv.horario && (() => {
+            const compact = formatHorarioCompact(pdv.horario)
+            return compact ? (
+              <div className="flex items-start gap-2 text-xs text-white/60">
+                <Clock size={11} className="text-white/40 shrink-0 mt-0.5" />
+                <span>{compact}</span>
+              </div>
+            ) : null
+          })()}
           {pdv.telefono && (
             <a
               href={`https://wa.me/${pdv.telefono.replace(/\D/g, '')}`}
