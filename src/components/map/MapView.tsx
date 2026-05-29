@@ -1,17 +1,11 @@
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet'
+import { MapContainer, Marker, Popup, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PDV } from '../../types'
 import { PDVPopup } from './PDVPopup'
+import { ThemeAwareTiles } from './ThemeAwareTiles'
 import type { GeoPosition } from '../../hooks/useGeolocation'
-import { useTheme } from '../../context/ThemeContext'
-
-// Light mode: Voyager (colorful, warm)
-// Dark mode:  Positron (light gray, detailed — great contrast against dark UI)
-const VOYAGER  = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-const POSITRON = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -59,9 +53,6 @@ interface MapViewProps {
 }
 
 export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectPDV }: MapViewProps) {
-  const { theme } = useTheme()
-  const tileUrl = theme === 'dark' ? POSITRON : VOYAGER
-
   const withCoords = pdvs.filter((p) => p.latitud != null && p.longitud != null)
 
   const center: [number, number] = nearestPDV?.latitud
@@ -71,20 +62,10 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
     : [10.48, -66.88]
 
   return (
-    <MapContainer
-      center={center}
-      zoom={12}
-      className="h-full w-full"
-      zoomControl={true}
-    >
-      {/* key={theme} forces tile re-load when switching themes */}
-      <TileLayer
-        key={theme}
-        url={tileUrl}
-        attribution={ATTRIBUTION}
-        subdomains="abcd"
-        maxZoom={19}
-      />
+    <MapContainer center={center} zoom={12} className="h-full w-full" zoomControl>
+      {/* ThemeAwareTiles swaps between Voyager (light) and Positron (dark)
+          using the Leaflet API directly — guaranteed to react to theme changes */}
+      <ThemeAwareTiles />
 
       <FlyToPDV pdv={selectedPDV} />
 

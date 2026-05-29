@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { X, Save, LocateFixed, Map, Loader } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import { MapContainer, Marker, useMapEvents } from 'react-leaflet'
+import { ThemeAwareTiles } from '../map/ThemeAwareTiles'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PDV, PDVFormData } from '../../types'
 import { slugify } from '../../lib/geo'
 import { HorarioBuilder } from './HorarioBuilder'
-import { useTheme } from '../../context/ThemeContext'
 
 interface PDVFormProps {
   pdv?: PDV | null
@@ -65,7 +65,6 @@ function LocationSelector({
 }
 
 export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
-  const { theme } = useTheme()
   const [form, setForm] = useState<PDVFormData>(empty)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -248,15 +247,7 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
                   zoomControl={true}
                   attributionControl={false}
                 >
-                  <TileLayer
-                    key={theme}
-                    url={theme === 'dark'
-                      ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-                      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-                    }
-                    subdomains="abcd"
-                    maxZoom={19}
-                  />
+                  <ThemeAwareTiles />
                   <LocationSelector position={mapCenter} onSelect={handleMapSelect} />
                 </MapContainer>
                 <p className="text-[10px] text-white/30 text-center py-1.5 bg-carbon-700/80">

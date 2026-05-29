@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { MapContainer, Marker } from 'react-leaflet'
+import { ThemeAwareTiles } from '../components/map/ThemeAwareTiles'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ShieldCheck, Navigation2, Share2, MapPin, ArrowLeft, Phone, AtSign, Clock, Sun, Moon } from 'lucide-react'
@@ -186,15 +187,7 @@ export function PDVDetailPage() {
               attributionControl={false}
               className="h-full w-full"
             >
-              <TileLayer
-                key={theme}
-                url={theme === 'dark'
-                  ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-                  : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-                }
-                subdomains="abcd"
-                maxZoom={19}
-              />
+              <ThemeAwareTiles />
               <Marker position={[pdv.latitud, pdv.longitud]} icon={createPDVIcon()} />
             </MapContainer>
           </div>
