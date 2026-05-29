@@ -2,7 +2,7 @@ import { ShieldCheck } from 'lucide-react'
 
 export function Banner() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-mobil-blue via-carbon-800 to-mobil-red/80 border-b border-white/10">
+    <div className="force-dark relative overflow-hidden bg-gradient-to-r from-mobil-blue via-carbon-800 to-mobil-red/80 border-b border-white/10">
       {/* Carbon texture overlay */}
       <div className="absolute inset-0 opacity-10"
         style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)' }}

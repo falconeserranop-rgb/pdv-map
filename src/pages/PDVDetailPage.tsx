@@ -86,8 +86,8 @@ export function PDVDetailPage() {
       <div className="flex-1 max-w-lg mx-auto w-full px-4 py-8 space-y-6">
         {/* Verification card */}
         <div className="glass-card rounded-2xl overflow-hidden">
-          {/* Badge */}
-          <div className="bg-gradient-to-r from-mobil-blue to-mobil-red/80 px-6 py-4">
+          {/* Badge — force-dark keeps text white on brand gradient in light mode too */}
+          <div className="force-dark bg-gradient-to-r from-mobil-blue to-mobil-red/80 px-6 py-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                 <ShieldCheck size={24} className="text-white" />
@@ -187,8 +187,8 @@ export function PDVDetailPage() {
           </div>
         )}
 
-        {/* Trust footer */}
-        <div className="flex items-center gap-3 glass-card rounded-xl px-4 py-3">
+        {/* Trust footer — always dark so the M4P logo (light asset) is always visible */}
+        <div className="force-dark flex items-center gap-3 bg-carbon-900 border border-white/10 rounded-xl px-4 py-3">
           <img src="/mad4performance-logo.png" alt="Mad4Performance" className="h-8 w-auto object-contain shrink-0" />
           <p className="text-xs text-white/40 flex-1">
             Este establecimiento es distribuidor autorizado de{' '}

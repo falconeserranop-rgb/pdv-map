@@ -102,17 +102,22 @@ export function MapPage() {
             onSelectPDV={handleSelectPDV}
           />
 
-          {/* Mobile FAB — show list (fixed so Leaflet can't block it) */}
-          {!sidebarOpen && (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-6 py-3.5 rounded-full transition-all"
-              style={{ boxShadow: '0 4px 24px rgba(204,0,0,0.6)' }}
-            >
-              <List size={16} />
-              Ver lista
-            </button>
-          )}
+          {/* Mobile FAB — always rendered but invisible when sidebar open.
+               Uses env(safe-area-inset-bottom) so it clears the iOS browser toolbar
+               and the home indicator on notched devices. viewport-fit=cover enables this. */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className={`md:hidden fixed left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-6 py-3.5 rounded-full transition-all duration-200 ${
+              sidebarOpen ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 translate-y-0'
+            }`}
+            style={{
+              bottom: 'calc(max(20px, env(safe-area-inset-bottom, 0px)) + 16px)',
+              boxShadow: '0 4px 24px rgba(204,0,0,0.6)',
+            }}
+          >
+            <List size={16} />
+            Ver lista
+          </button>
         </div>
       </div>
     </div>

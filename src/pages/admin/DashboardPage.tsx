@@ -227,44 +227,49 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex-1 p-6 space-y-6 max-w-6xl mx-auto w-full">
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="flex-1 p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto w-full">
+        {/* Stats — 3 cols on mobile so all 5 fit without an orphan */}
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
           {[
-            { label: 'Total PDVs', value: stats.total, color: 'text-white', bg: 'bg-carbon-700' },
+            { label: 'Total', value: stats.total, color: 'text-white', bg: 'bg-carbon-700' },
             { label: 'Activos', value: stats.activos, color: 'text-green-400', bg: 'bg-green-500/10' },
             { label: 'Inactivos', value: stats.inactivos, color: 'text-red-400', bg: 'bg-red-500/10' },
-            { label: 'En el mapa', value: stats.conCoords, color: 'text-mobil-blue', bg: 'bg-mobil-blue/10' },
-            { label: 'Sin ubicación', value: stats.sinCoords, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+            { label: 'En mapa', value: stats.conCoords, color: 'text-mobil-blue', bg: 'bg-mobil-blue/10' },
+            { label: 'Sin ubic.', value: stats.sinCoords, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
           ].map((s) => (
-            <div key={s.label} className={`${s.bg} border border-white/10 rounded-xl px-4 py-3`}>
-              <p className={`text-2xl font-bold font-display ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
+            <div key={s.label} className={`${s.bg} border border-white/10 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3`}>
+              <p className={`text-xl sm:text-2xl font-bold font-display ${s.color}`}>{s.value}</p>
+              <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex gap-1 bg-carbon-800 rounded-lg p-1">
+        {/* Tabs + actions — stacked on mobile, side-by-side on desktop */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          {/* Tab group */}
+          <div className="flex gap-1 bg-carbon-800 rounded-lg p-1 overflow-x-auto shrink-0">
             {(['pdvs', 'stats', 'nocoords'] as Tab[]).map((t) => (
               <button key={t} onClick={() => setTab(t)}
-                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === t ? 'bg-mobil-red text-white' : 'text-white/50 hover:text-white'}`}>
-                {t === 'pdvs' ? 'PDVs' : t === 'stats' ? 'Por zona' : `Sin ubicación (${stats.sinCoords})`}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === t ? 'bg-mobil-red text-white' : 'text-white/50 hover:text-white'}`}>
+                {t === 'pdvs' ? 'PDVs'
+                  : t === 'stats' ? 'Por zona'
+                  : <><span className="sm:hidden">Sin coords ({stats.sinCoords})</span><span className="hidden sm:inline">Sin ubicación ({stats.sinCoords})</span></>
+                }
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Action buttons — icon-only labels on mobile */}
+          <div className="flex items-center gap-2 flex-wrap">
             <button onClick={exportCSV} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white border border-white/15 rounded-lg px-3 py-1.5 transition-colors">
-              <Download size={12} /> Exportar CSV
+              <Download size={12} /> <span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">Exportar</span>
             </button>
             <button onClick={() => setShowImport(true)} className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white bg-carbon-700 border border-white/15 rounded-lg px-3 py-1.5 transition-colors">
-              <Upload size={12} /> Importar CSV
+              <Upload size={12} /> <span className="hidden sm:inline">Importar CSV</span><span className="sm:hidden">Importar</span>
             </button>
             <button onClick={() => { setEditingPDV(null); setShowForm(true) }}
               className="flex items-center gap-1.5 text-xs text-white bg-mobil-red hover:bg-mobil-red-light rounded-lg px-3 py-1.5 transition-colors">
-              <Plus size={12} /> Nuevo PDV
+              <Plus size={12} /> <span className="hidden sm:inline">Nuevo PDV</span><span className="sm:hidden">Nuevo</span>
             </button>
           </div>
         </div>
@@ -285,47 +290,50 @@ export function DashboardPage() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-white/30 border-b border-white/10">
-                    <th className="text-left px-4 py-3 font-medium">Nombre</th>
-                    <th className="text-left px-3 py-3 font-medium">Zona</th>
-                    <th className="text-left px-3 py-3 font-medium">Código</th>
-                    <th className="text-center px-3 py-3 font-medium">Mapa</th>
-                    <th className="text-center px-3 py-3 font-medium">Estado</th>
-                    <th className="text-right px-4 py-3 font-medium">Acciones</th>
+                    <th className="text-left px-3 py-3 font-medium">Nombre</th>
+                    <th className="hidden sm:table-cell text-left px-3 py-3 font-medium">Zona</th>
+                    <th className="hidden md:table-cell text-left px-3 py-3 font-medium">Código</th>
+                    <th className="text-center px-2 py-3 font-medium">Mapa</th>
+                    <th className="text-center px-2 py-3 font-medium">Estado</th>
+                    <th className="text-right px-3 py-3 font-medium">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <tr key={i} className="border-b border-white/5">
-                        <td colSpan={6} className="px-4 py-3">
+                        <td colSpan={6} className="px-3 py-3">
                           <div className="h-4 bg-carbon-700/40 rounded animate-pulse" />
                         </td>
                       </tr>
                     ))
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-white/30">
+                      <td colSpan={6} className="px-3 py-8 text-center text-white/30">
                         No se encontraron PDVs
                       </td>
                     </tr>
                   ) : (
                     filtered.map((pdv) => (
                       <tr key={pdv.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-2.5">
                           <div className="flex items-center gap-2">
-                            <MapPin size={11} className={pdv.latitud ? 'text-mobil-red' : 'text-white/20'} />
-                            <span className="font-medium text-white/90">{pdv.nombre}</span>
+                            <MapPin size={11} className={`shrink-0 ${pdv.latitud ? 'text-mobil-red' : 'text-white/20'}`} />
+                            <div className="min-w-0">
+                              <span className="font-medium text-white/90 block truncate max-w-[140px] sm:max-w-none">{pdv.nombre}</span>
+                              <span className="sm:hidden text-white/40 text-[10px]">{pdv.zona}</span>
+                            </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-white/50">{pdv.zona}</td>
-                        <td className="px-3 py-3 text-white/30 font-mono">{pdv.codigo}</td>
-                        <td className="px-3 py-3 text-center">
+                        <td className="hidden sm:table-cell px-3 py-2.5 text-white/50">{pdv.zona}</td>
+                        <td className="hidden md:table-cell px-3 py-2.5 text-white/30 font-mono">{pdv.codigo}</td>
+                        <td className="px-2 py-2.5 text-center">
                           {pdv.latitud && pdv.longitud
                             ? <CheckCircle size={13} className="text-green-400 mx-auto" />
                             : <XCircle size={13} className="text-white/20 mx-auto" />
                           }
                         </td>
-                        <td className="px-3 py-3 text-center">
+                        <td className="px-2 py-2.5 text-center">
                           <button onClick={() => handleToggleActive(pdv)} className="transition-colors">
                             {pdv.activo
                               ? <ToggleRight size={18} className="text-green-400 hover:text-green-300 mx-auto" />
@@ -333,7 +341,7 @@ export function DashboardPage() {
                             }
                           </button>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-2.5">
                           <div className="flex items-center justify-end gap-1">
                             <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
                               className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
