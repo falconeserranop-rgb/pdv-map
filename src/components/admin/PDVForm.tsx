@@ -279,17 +279,20 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
             </div>
           </div>
 
-          {/* Toggle: green = active, red = inactive; pill grows so ball never overlaps label */}
+          {/* Toggle: green = active, red = inactive
+               p-0 removes browser-default button padding so the ball's left:0 baseline is exact.
+               Ball is anchored with left-1 top-1; translate moves it within the pill.
+               w-14(56px) – ball w-5(20px) – 2×left-1(8px) = 28px travel → translate-x-7 */}
           <div className="flex items-center gap-4 pt-1">
             <button
               type="button"
               onClick={() => set('activo', !form.activo)}
-              className={`relative shrink-0 w-14 h-7 rounded-full transition-all duration-300 ${
+              className={`relative shrink-0 p-0 w-14 h-7 rounded-full overflow-hidden transition-all duration-300 ${
                 form.activo ? 'bg-green-500' : 'bg-mobil-red'
               }`}
             >
-              <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
-                form.activo ? 'translate-x-8' : 'translate-x-1'
+              <span className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                form.activo ? 'translate-x-7' : 'translate-x-0'
               }`} />
             </button>
             <span className={`text-sm font-semibold transition-colors ${

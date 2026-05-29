@@ -336,15 +336,17 @@ export function DashboardPage() {
                         </td>
                         {/* Estado — custom pill toggle, green=active / red=inactive */}
                         <td className="px-2 py-3 text-center">
+                          {/* p-0 removes browser button padding; left-0.5+top-0.5 anchor the ball.
+                               w-12(48px) – ball w-5(20px) – 2×0.5(4px) = 24px travel → translate-x-6 */}
                           <button
                             onClick={() => handleToggleActive(pdv)}
                             title={pdv.activo ? 'Desactivar' : 'Activar'}
-                            className={`relative inline-flex shrink-0 w-12 h-6 rounded-full transition-all duration-300 mx-auto ${
+                            className={`relative p-0 inline-flex shrink-0 w-12 h-6 rounded-full overflow-hidden transition-all duration-300 mx-auto ${
                               pdv.activo ? 'bg-green-500' : 'bg-mobil-red/80'
                             }`}
                           >
-                            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
-                              pdv.activo ? 'translate-x-6' : 'translate-x-0.5'
+                            <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
+                              pdv.activo ? 'translate-x-6' : 'translate-x-0'
                             }`} />
                           </button>
                         </td>
