@@ -207,8 +207,8 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-carbon-950 flex flex-col">
-      {/* Top bar */}
-      <header className="bg-carbon-900 border-b border-white/10">
+      {/* Top bar — force-dark so logos/buttons always look correct */}
+      <header className="force-dark bg-carbon-900 border-b border-white/10">
         <div className="racing-stripe" />
         <div className="flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
@@ -217,10 +217,10 @@ export function DashboardPage() {
             <span className="text-xs text-white/50 font-medium uppercase tracking-wider">Admin Panel</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white border border-white/10 hover:border-white/30 rounded-lg px-3 py-1.5 transition-colors">
+            <Link to="/" className="flex items-center gap-1.5 text-xs text-white bg-carbon-700 hover:bg-carbon-600 rounded-lg px-3 py-1.5 transition-colors">
               <Map size={12} /> Ver mapa
             </Link>
-            <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white border border-white/10 hover:border-white/30 rounded-lg px-3 py-1.5 transition-colors">
+            <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs text-white bg-carbon-700 hover:bg-carbon-600 rounded-lg px-3 py-1.5 transition-colors">
               <LogOut size={12} /> Salir
             </button>
           </div>
@@ -259,12 +259,12 @@ export function DashboardPage() {
             ))}
           </div>
 
-          {/* Action buttons — icon-only labels on mobile */}
+          {/* Action buttons — all filled so they're visible in dark and light mode */}
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={exportCSV} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white border border-white/15 rounded-lg px-3 py-1.5 transition-colors">
+            <button onClick={exportCSV} className="flex items-center gap-1.5 text-xs text-white bg-carbon-700 hover:bg-carbon-600 rounded-lg px-3 py-1.5 transition-colors">
               <Download size={12} /> <span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">Exportar</span>
             </button>
-            <button onClick={() => setShowImport(true)} className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white bg-carbon-700 border border-white/15 rounded-lg px-3 py-1.5 transition-colors">
+            <button onClick={() => setShowImport(true)} className="flex items-center gap-1.5 text-xs text-white bg-carbon-700 hover:bg-carbon-600 rounded-lg px-3 py-1.5 transition-colors">
               <Upload size={12} /> <span className="hidden sm:inline">Importar CSV</span><span className="sm:hidden">Importar</span>
             </button>
             <button onClick={() => { setEditingPDV(null); setShowForm(true) }}
@@ -418,11 +418,12 @@ export function DashboardPage() {
                     <p className="text-xs text-white/30">{pdv.zona}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {/* Filled backgrounds — visible in both dark and light mode */}
                     <button
                       onClick={() => handleQuickGPS(pdv)}
                       disabled={gpsLoadingId === pdv.id}
                       title="Usar mi ubicación GPS actual"
-                      className="flex items-center gap-1.5 text-xs text-green-400 hover:text-white border border-green-500/30 hover:bg-green-500/20 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1.5 text-xs text-white bg-green-600 hover:bg-green-500 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
                     >
                       {gpsLoadingId === pdv.id
                         ? <Loader size={11} className="animate-spin" />
@@ -431,7 +432,7 @@ export function DashboardPage() {
                       <span className="hidden sm:inline">Mi GPS</span>
                     </button>
                     <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
-                      className="flex items-center gap-1.5 text-xs text-mobil-blue hover:text-white border border-mobil-blue/30 hover:bg-mobil-blue/20 rounded-lg px-3 py-1.5 transition-colors">
+                      className="flex items-center gap-1.5 text-xs text-white bg-mobil-blue hover:bg-mobil-blue-light rounded-lg px-3 py-1.5 transition-colors">
                       <Edit2 size={11} /> <span className="hidden sm:inline">Añadir en mapa</span><span className="sm:hidden">Mapa</span>
                     </button>
                   </div>
