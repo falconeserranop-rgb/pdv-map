@@ -5,7 +5,12 @@ import 'leaflet/dist/leaflet.css'
 import type { PDV } from '../../types'
 import { PDVPopup } from './PDVPopup'
 import type { GeoPosition } from '../../hooks/useGeolocation'
-import { useTheme } from '../../context/ThemeContext'
+
+// Single high-detail tile URL for both themes.
+// Dark mode appearance is handled entirely by CSS:
+//   [data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) ... }
+// Markers/popups/circles live in separate Leaflet panes → not filtered.
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -53,7 +58,6 @@ interface MapViewProps {
 }
 
 export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectPDV }: MapViewProps) {
-  const { theme } = useTheme()
   const withCoords = pdvs.filter((p) => p.latitud != null && p.longitud != null)
 
   const center: [number, number] = nearestPDV?.latitud
@@ -61,11 +65,6 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
     : userPosition
     ? [userPosition.lat, userPosition.lon]
     : [10.48, -66.88]
-
-  // Voyager = light coloured tiles with full road/building detail
-  const tileUrl = theme === 'light'
-    ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
 
   return (
     <MapContainer
@@ -75,8 +74,7 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
       zoomControl={true}
     >
       <TileLayer
-        key={theme}
-        url={tileUrl}
+        url={TILE_URL}
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
         subdomains="abcd"
         maxZoom={19}

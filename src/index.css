@@ -201,12 +201,29 @@ html, body, #root {
 
 /* ─── Leaflet overrides ─── */
 .leaflet-container {
-  background: #0a0a0f !important;
+  background: #1a1a24 !important;
   font-family: 'Inter', sans-serif;
-  transition: background 0.3s ease;
 }
 [data-theme="light"] .leaflet-container {
   background: #E8EBF0 !important;
+}
+
+/*
+ * Dark mode map detail technique:
+ * We use the same high-detail Voyager tiles for BOTH themes.
+ * In dark mode we apply CSS filters ONLY to the tile image layer
+ * (.leaflet-tile-pane), leaving markers, circles and popups untouched.
+ *
+ * invert(1)         → white bg becomes black, roads become light
+ * hue-rotate(180deg)→ roughly restores natural hues (blue water, etc.)
+ * brightness(0.88)  → slightly dim so it's not harsh
+ * saturate(0.85)    → pull back oversaturation from the double transform
+ *
+ * Result: full road/building/park detail in a comfortable dark palette,
+ * identical to how high-end map apps (Google Maps dark mode) work.
+ */
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) saturate(0.85);
 }
 .leaflet-popup-content-wrapper {
   background: rgba(17, 17, 24, 0.97) !important;
