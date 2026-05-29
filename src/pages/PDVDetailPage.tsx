@@ -66,22 +66,27 @@ export function PDVDetailPage() {
       {/* Header */}
       <header className="force-dark bg-carbon-900 border-b border-white/10">
         <div className="racing-stripe" />
-        <div className="flex items-center justify-between px-4 h-14">
-          <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors">
+        {/* grid-cols-3: equal columns guarantee the logo is always pixel-perfect centred */}
+        <div className="grid grid-cols-3 items-center px-4 h-14">
+          <Link to="/" className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors justify-self-start">
             <ArrowLeft size={16} />
             Volver al mapa
           </Link>
-          <img src="/mobil-logo.png" alt="Mobil" className="h-10 w-auto" />
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-          >
-            {theme === 'dark'
-              ? <Sun size={17} className="text-white/50" />
-              : <Moon size={17} className="text-white/50" />
-            }
-          </button>
+          <div className="flex justify-center">
+            <img src="/mobil-logo.png" alt="Mobil" className="h-10 w-auto" />
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+            >
+              {theme === 'dark'
+                ? <Sun size={17} className="text-white/50" />
+                : <Moon size={17} className="text-white/50" />
+              }
+            </button>
+          </div>
         </div>
       </header>
 
