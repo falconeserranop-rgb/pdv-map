@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   LogOut, Plus, Upload, Download, Search, MapPin, CheckCircle,
-  XCircle, AlertCircle, Edit2, Trash2, ToggleLeft, ToggleRight,
+  XCircle, AlertCircle, Edit2, Trash2,
   BarChart2, Map, LocateFixed, Loader
 } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../../lib/supabase'
@@ -289,7 +289,7 @@ export function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="text-white/30 border-b border-white/10">
+                  <tr className="text-white/30 border-b border-white/10 text-xs">
                     <th className="text-left px-3 py-3 font-medium">Nombre</th>
                     <th className="hidden sm:table-cell text-left px-3 py-3 font-medium">Zona</th>
                     <th className="hidden md:table-cell text-left px-3 py-3 font-medium">Código</th>
@@ -327,29 +327,43 @@ export function DashboardPage() {
                         </td>
                         <td className="hidden sm:table-cell px-3 py-2.5 text-white/50">{pdv.zona}</td>
                         <td className="hidden md:table-cell px-3 py-2.5 text-white/30 font-mono">{pdv.codigo}</td>
-                        <td className="px-2 py-2.5 text-center">
+                        {/* Mapa — larger icon */}
+                        <td className="px-2 py-3 text-center">
                           {pdv.latitud && pdv.longitud
-                            ? <CheckCircle size={13} className="text-green-400 mx-auto" />
-                            : <XCircle size={13} className="text-white/20 mx-auto" />
+                            ? <CheckCircle size={22} className="text-green-400 mx-auto" />
+                            : <XCircle size={22} className="text-white/25 mx-auto" />
                           }
                         </td>
-                        <td className="px-2 py-2.5 text-center">
-                          <button onClick={() => handleToggleActive(pdv)} className="transition-colors">
-                            {pdv.activo
-                              ? <ToggleRight size={18} className="text-green-400 hover:text-green-300 mx-auto" />
-                              : <ToggleLeft size={18} className="text-white/25 hover:text-white/50 mx-auto" />
-                            }
+                        {/* Estado — custom pill toggle, green=active / red=inactive */}
+                        <td className="px-2 py-3 text-center">
+                          <button
+                            onClick={() => handleToggleActive(pdv)}
+                            title={pdv.activo ? 'Desactivar' : 'Activar'}
+                            className={`relative inline-flex shrink-0 w-12 h-6 rounded-full transition-all duration-300 mx-auto ${
+                              pdv.activo ? 'bg-green-500' : 'bg-mobil-red/80'
+                            }`}
+                          >
+                            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
+                              pdv.activo ? 'translate-x-6' : 'translate-x-0.5'
+                            }`} />
                           </button>
                         </td>
-                        <td className="px-2 py-2.5">
-                          <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
-                              className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
-                              <Edit2 size={13} />
+                        {/* Acciones — large tappable buttons */}
+                        <td className="px-2 py-3">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
+                              title="Editar"
+                              className="flex items-center justify-center w-9 h-9 rounded-xl bg-mobil-blue/10 hover:bg-mobil-blue/25 text-mobil-blue transition-colors"
+                            >
+                              <Edit2 size={17} />
                             </button>
-                            <button onClick={() => handleDelete(pdv)}
-                              className="p-1.5 rounded-lg hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors">
-                              <Trash2 size={13} />
+                            <button
+                              onClick={() => handleDelete(pdv)}
+                              title="Eliminar"
+                              className="flex items-center justify-center w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/25 text-red-400 transition-colors"
+                            >
+                              <Trash2 size={17} />
                             </button>
                           </div>
                         </td>

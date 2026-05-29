@@ -196,11 +196,12 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
             <div className="flex items-center justify-between">
               <label className="text-xs text-white/50">Ubicaci&oacute;n en el mapa</label>
               <div className="flex gap-2">
+                {/* Filled bg so the button is visible in both dark and light mode */}
                 <button
                   type="button"
                   onClick={handleGetGPS}
                   disabled={gettingGPS}
-                  className="flex items-center gap-1.5 text-xs text-mobil-blue hover:text-white border border-mobil-blue/30 hover:bg-mobil-blue/20 rounded-lg px-2.5 py-1 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-xs text-white bg-mobil-blue hover:bg-mobil-blue-light rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
                 >
                   {gettingGPS
                     ? <Loader size={11} className="animate-spin" />
@@ -211,7 +212,7 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
                 <button
                   type="button"
                   onClick={() => setShowMap((s) => !s)}
-                  className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white border border-white/10 hover:border-white/30 rounded-lg px-2.5 py-1 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-carbon-700 hover:bg-carbon-600 border border-white/10 rounded-lg px-3 py-1.5 transition-colors"
                 >
                   <Map size={11} />
                   {showMap ? 'Ocultar mapa' : 'Elegir en mapa'}
@@ -277,12 +278,24 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
-            <button type="button" onClick={() => set('activo', !form.activo)}
-              className={`relative w-10 h-6 rounded-full transition-colors ${form.activo ? 'bg-green-500' : 'bg-carbon-600'}`}>
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${form.activo ? 'translate-x-5' : 'translate-x-1'}`} />
+          {/* Toggle: green = active, red = inactive; pill grows so ball never overlaps label */}
+          <div className="flex items-center gap-4 pt-1">
+            <button
+              type="button"
+              onClick={() => set('activo', !form.activo)}
+              className={`relative shrink-0 w-14 h-7 rounded-full transition-all duration-300 ${
+                form.activo ? 'bg-green-500' : 'bg-mobil-red'
+              }`}
+            >
+              <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${
+                form.activo ? 'translate-x-8' : 'translate-x-1'
+              }`} />
             </button>
-            <span className="text-sm text-white/70">{form.activo ? 'Activo' : 'Inactivo'}</span>
+            <span className={`text-sm font-semibold transition-colors ${
+              form.activo ? 'text-green-400' : 'text-red-400'
+            }`}>
+              {form.activo ? 'Activo' : 'Inactivo'}
+            </span>
           </div>
         </form>
 
