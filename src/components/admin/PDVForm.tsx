@@ -5,6 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PDV, PDVFormData } from '../../types'
 import { slugify } from '../../lib/geo'
+import { HORARIOS_LIST } from '../../lib/horarios'
 
 interface PDVFormProps {
   pdv?: PDV | null
@@ -22,7 +23,7 @@ const ZONAS_LIST = [
 
 const empty: PDVFormData = {
   codigo: '', nombre: '', zona: 'CARACAS', direccion: '', latitud: '', longitud: '',
-  asesor_ventas: '', activo: true, instagram: '', telefono: '', horario: '',
+  asesor_ventas: '', activo: true, instagram: '', instagram_url: '', telefono: '', horario: '',
 }
 
 // Create a draggable marker icon
@@ -82,6 +83,7 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
         asesor_ventas: pdv.asesor_ventas ?? '',
         activo: pdv.activo,
         instagram: pdv.instagram ?? '',
+        instagram_url: pdv.instagram_url ?? '',
         telefono: pdv.telefono ?? '',
         horario: pdv.horario ?? '',
       })
@@ -258,24 +260,42 @@ export function PDVForm({ pdv, onSave, onClose }: PDVFormProps) {
             )}
           </div>
 
-          <div className="pt-2 border-t border-white/10">
-            <p className="text-xs text-white/30 mb-3 uppercase tracking-wider font-medium">Informaci&oacute;n de contacto (opcional)</p>
+          <div className="pt-2 border-t border-white/10 space-y-3">
+            <p className="text-xs text-white/30 uppercase tracking-wider font-medium">Informaci&oacute;n de contacto (opcional)</p>
+
+            <div className="space-y-1">
+              <label className="text-xs text-white/50">Tel&eacute;fono / WhatsApp</label>
+              <input value={form.telefono} onChange={(e) => set('telefono', e.target.value)}
+                className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all font-mono placeholder:font-sans"
+                placeholder="+58 414-1234567" />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs text-white/50">Tel&eacute;fono / WhatsApp</label>
-                <input value={form.telefono} onChange={(e) => set('telefono', e.target.value)}
-                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all" placeholder="+58 424..." />
+                <label className="text-xs text-white/50">Instagram (nombre visible)</label>
+                <input value={form.instagram} onChange={(e) => set('instagram', e.target.value)}
+                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all"
+                  placeholder="@handle" />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-white/50">Instagram</label>
-                <input value={form.instagram} onChange={(e) => set('instagram', e.target.value)}
-                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all" placeholder="@handle" />
+                <label className="text-xs text-white/50">Link de Instagram</label>
+                <input type="url" value={form.instagram_url} onChange={(e) => set('instagram_url', e.target.value)}
+                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all"
+                  placeholder="https://instagram.com/..." />
               </div>
             </div>
-            <div className="space-y-1 mt-3">
-              <label className="text-xs text-white/50">Horario</label>
-              <input value={form.horario} onChange={(e) => set('horario', e.target.value)}
-                className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all" placeholder="Lun-Vie 8:00am - 5:00pm" />
+
+            <div className="space-y-1">
+              <label className="text-xs text-white/50">Horario de atenci&oacute;n</label>
+              <select value={form.horario} onChange={(e) => set('horario', e.target.value)}
+                className="w-full bg-carbon-700 border border-white/10 text-sm text-white rounded-lg px-3 py-2 outline-none focus:border-mobil-blue/50 transition-all">
+                <option value="">Sin especificar</option>
+                {HORARIOS_LIST.map((h) => <option key={h} value={h}>{h}</option>)}
+                {/* Preserve any legacy free-text value that doesn't match a preset */}
+                {form.horario && !HORARIOS_LIST.includes(form.horario) && (
+                  <option value={form.horario}>{form.horario} (personalizado)</option>
+                )}
+              </select>
             </div>
           </div>
 

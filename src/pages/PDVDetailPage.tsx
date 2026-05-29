@@ -128,11 +128,15 @@ export function PDVDetailPage() {
                     {pdv.telefono}
                   </a>
                 )}
-                {pdv.instagram && (
-                  <a href={`https://instagram.com/${pdv.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-pink-400">
+                {(pdv.instagram || pdv.instagram_url) && (
+                  <a
+                    href={pdv.instagram_url ?? `https://instagram.com/${(pdv.instagram ?? '').replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-pink-400"
+                  >
                     <AtSign size={14} />
-                    {pdv.instagram}
+                    {pdv.instagram ?? pdv.instagram_url}
                   </a>
                 )}
               </div>

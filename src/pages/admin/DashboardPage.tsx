@@ -72,6 +72,7 @@ export function DashboardPage() {
       activo: data.activo,
       slug: slugify(data.nombre),
       instagram: data.instagram || null,
+      instagram_url: data.instagram_url || null,
       telefono: data.telefono || null,
       horario: data.horario || null,
     }
@@ -189,10 +190,10 @@ export function DashboardPage() {
   }
 
   function exportCSV() {
-    const headers = 'codigo,nombre,zona,direccion,latitud,longitud,asesor_ventas,activo,telefono,instagram,horario'
+    const headers = 'codigo,nombre,zona,direccion,latitud,longitud,asesor_ventas,activo,telefono,instagram,instagram_url,horario'
     const rows = pdvs.map((p) =>
       [p.codigo, p.nombre, p.zona, p.direccion ?? '', p.latitud ?? '', p.longitud ?? '',
-       p.asesor_ventas ?? '', p.activo, p.telefono ?? '', p.instagram ?? '', p.horario ?? ''].join(',')
+       p.asesor_ventas ?? '', p.activo, p.telefono ?? '', p.instagram ?? '', p.instagram_url ?? '', p.horario ?? ''].join(',')
     )
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
@@ -374,22 +375,39 @@ export function DashboardPage() {
                             }`} />
                           </button>
                         </td>
-                        {/* Acciones — large tappable buttons */}
+                        {/* Acciones */}
                         <td className="px-2 py-3">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => { setEditingPDV(pdv); setShowForm(true) }}
                               title="Editar"
-                              className="flex items-center justify-center w-9 h-9 rounded-xl bg-mobil-blue/10 hover:bg-mobil-blue/25 text-mobil-blue transition-colors"
+                              className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-mobil-blue/10 hover:bg-mobil-blue/25 text-mobil-blue transition-colors"
                             >
-                              <Edit2 size={17} />
+                              <Edit2 size={14} className="sm:hidden" />
+                              <Edit2 size={17} className="hidden sm:block" />
+                            </button>
+                            <button
+                              onClick={() => handleGenerateLink(pdv)}
+                              disabled={generatingLinkId === pdv.id}
+                              title="Generar link de registro para el cliente"
+                              className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/25 text-emerald-400 transition-colors disabled:opacity-50"
+                            >
+                              {generatingLinkId === pdv.id
+                                ? <Loader size={12} className="animate-spin sm:hidden" />
+                                : <Link2 size={14} className="sm:hidden" />
+                              }
+                              {generatingLinkId === pdv.id
+                                ? <Loader size={14} className="animate-spin hidden sm:block" />
+                                : <Link2 size={17} className="hidden sm:block" />
+                              }
                             </button>
                             <button
                               onClick={() => handleDelete(pdv)}
                               title="Eliminar"
-                              className="flex items-center justify-center w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/25 text-red-400 transition-colors"
+                              className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-red-500/10 hover:bg-red-500/25 text-red-400 transition-colors"
                             >
-                              <Trash2 size={17} />
+                              <Trash2 size={14} className="sm:hidden" />
+                              <Trash2 size={17} className="hidden sm:block" />
                             </button>
                           </div>
                         </td>

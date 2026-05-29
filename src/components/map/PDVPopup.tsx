@@ -61,15 +61,15 @@ export function PDVPopup({ pdv, isNearest }: PDVPopupProps) {
               <span>{pdv.telefono}</span>
             </a>
           )}
-          {pdv.instagram && (
+          {(pdv.instagram || pdv.instagram_url) && (
             <a
-              href={`https://instagram.com/${pdv.instagram.replace('@', '')}`}
+              href={pdv.instagram_url ?? `https://instagram.com/${(pdv.instagram ?? '').replace('@', '')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-xs text-pink-400 hover:text-pink-300 transition-colors"
             >
               <AtSign size={11} />
-              <span>{pdv.instagram}</span>
+              <span>{pdv.instagram ?? pdv.instagram_url}</span>
             </a>
           )}
         </div>

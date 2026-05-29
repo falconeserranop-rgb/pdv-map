@@ -10,6 +10,7 @@ export interface PDV {
   activo: boolean
   slug: string
   instagram?: string | null
+  instagram_url?: string | null
   telefono?: string | null
   horario?: string | null
   imagen_url?: string | null
@@ -29,6 +30,7 @@ export interface PDVFormData {
   asesor_ventas: string
   activo: boolean
   instagram: string
+  instagram_url: string
   telefono: string
   horario: string
 }

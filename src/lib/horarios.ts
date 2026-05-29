@@ -1,0 +1,26 @@
+// Predefined schedule options shared between admin form and client capture page.
+// Adding new options here automatically updates both places.
+export const HORARIOS_LIST = [
+  'Lun-Vie 7:00am – 5:00pm',
+  'Lun-Vie 7:00am – 6:00pm',
+  'Lun-Vie 8:00am – 5:00pm',
+  'Lun-Vie 8:00am – 6:00pm',
+  'Lun-Vie 8:00am – 7:00pm',
+  'Lun-Vie 9:00am – 5:00pm',
+  'Lun-Vie 9:00am – 6:00pm',
+  'Lun-Sáb 7:00am – 5:00pm',
+  'Lun-Sáb 7:00am – 6:00pm',
+  'Lun-Sáb 8:00am – 5:00pm',
+  'Lun-Sáb 8:00am – 6:00pm',
+  'Lun-Sáb 8:00am – 7:00pm',
+  'Lun-Sáb 9:00am – 5:00pm',
+  'Lun-Sáb 9:00am – 6:00pm',
+  'Lun-Dom 8:00am – 5:00pm',
+  'Lun-Dom 8:00am – 6:00pm',
+  'Lun-Dom 8:00am – 8:00pm',
+  'Lun-Dom 9:00am – 6:00pm',
+  'Lun-Dom 9:00am – 8:00pm',
+  'Mar-Sáb 8:00am – 6:00pm',
+  'Mar-Dom 8:00am – 6:00pm',
+  'Mié-Dom 8:00am – 6:00pm',
+]

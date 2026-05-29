@@ -20,6 +20,7 @@ interface CSVRow {
   longitud?: string
   asesor_ventas?: string
   instagram?: string
+  instagram_url?: string
   telefono?: string
   horario?: string
   activo?: string
@@ -35,7 +36,7 @@ export function CSVImport({ existingNames, existingCodigos, onImport, onClose }:
   const inputRef = useRef<HTMLInputElement>(null)
 
   function downloadTemplate() {
-    const csv = 'codigo,nombre,zona,direccion,latitud,longitud,asesor_ventas,telefono,instagram,horario\n501674086,CAUCHOS AVILA,CARACAS,Av. Principal Local 5,10.490339,-66.854394,Francisco Carvajal,+58424...,@cauchos_avila,Lun-Vie 8am-5pm'
+    const csv = 'codigo,nombre,zona,direccion,latitud,longitud,asesor_ventas,telefono,instagram,instagram_url,horario\n501674086,CAUCHOS AVILA,CARACAS,Av. Principal Local 5,10.490339,-66.854394,Francisco Carvajal,+58 414-1234567,@cauchos_avila,https://instagram.com/cauchos_avila,Lun-Sáb 8:00am – 6:00pm'
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -74,6 +75,7 @@ export function CSVImport({ existingNames, existingCodigos, onImport, onClose }:
             asesor_ventas: (row.asesor_ventas ?? '').trim(),
             activo: (row.activo ?? 'true') !== 'false',
             instagram: (row.instagram ?? '').trim(),
+            instagram_url: (row.instagram_url ?? '').trim(),
             telefono: (row.telefono ?? '').trim(),
             horario: (row.horario ?? '').trim(),
           })
