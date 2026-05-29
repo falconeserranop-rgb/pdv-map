@@ -187,12 +187,12 @@ export function PDVDetailPage() {
           </div>
         )}
 
-        {/* Trust footer — always dark so the M4P logo (light asset) is always visible */}
-        <div className="force-dark flex items-center gap-3 bg-carbon-900 border border-white/10 rounded-xl px-4 py-3">
+        {/* Trust footer — same brand gradient as the badge above */}
+        <div className="force-dark flex items-center gap-3 bg-gradient-to-r from-mobil-blue to-mobil-red/80 rounded-xl px-4 py-3">
           <img src="/mad4performance-logo.png" alt="Mad4Performance" className="h-8 w-auto object-contain shrink-0" />
-          <p className="text-xs text-white/40 flex-1">
+          <p className="text-xs text-white/60 flex-1">
             Este establecimiento es distribuidor autorizado de{' '}
-            <strong className="text-white/60">Lubricante Mobil Original</strong> en Venezuela.
+            <strong className="text-white">Lubricante Mobil Original</strong> en Venezuela.
           </p>
         </div>
       </div>
