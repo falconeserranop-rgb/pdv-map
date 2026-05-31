@@ -17,7 +17,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Buscar punto de venta..."
-        className="w-full bg-carbon-700 border border-white/10 text-sm text-white placeholder:text-white/30 rounded-lg pl-9 pr-8 py-3 outline-none focus:border-mobil-red/60 focus:bg-carbon-600 transition-all"
+        className="w-full bg-carbon-700 border border-white/10 text-base sm:text-sm text-white placeholder:text-white/30 rounded-lg pl-9 pr-8 py-3 outline-none focus:border-mobil-red/60 focus:bg-carbon-600 transition-all"
       />
       {value && (
         <button

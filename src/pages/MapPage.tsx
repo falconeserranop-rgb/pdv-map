@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { List } from 'lucide-react'
 import { Header } from '../components/layout/Header'
 import { Banner } from '../components/layout/Banner'
 import { Sidebar } from '../components/sidebar/Sidebar'
+import { MobileDrawer } from '../components/sidebar/MobileDrawer'
 import { MapView } from '../components/map/MapView'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { usePDVs } from '../hooks/usePDVs'
@@ -13,10 +13,10 @@ export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
-  // Open sidebar by default on mobile so users see the list immediately
-  const [sidebarOpen, setSidebarOpen] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth < 768
-  )
+
+  // Desktop sidebar toggle (hamburger in header).
+  // On mobile the drawer is self-contained and manages its own state.
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { status: geoStatus, position, retry } = useGeolocation()
   const { pdvs, loading } = usePDVs(position, sortMode, search)
@@ -48,9 +48,23 @@ export function MapPage() {
     }
   }, [nearestPDV, geoStatus, selectedPDV])
 
-  const handleSelectPDV = (pdv: PDV) => {
+  function handleSelectPDV(pdv: PDV) {
     setSelectedPDV(pdv)
-    setSidebarOpen(false)
+    setSidebarOpen(false) // close desktop sidebar too if open
+  }
+
+  const commonSidebarProps = {
+    pdvs,
+    selectedPDV,
+    nearestPDV,
+    sortMode,
+    geoStatus,
+    search,
+    loading,
+    onSelectPDV: handleSelectPDV,
+    onSortChange: setSortMode,
+    onSearchChange: setSearch,
+    onRetryGeo: retry,
   }
 
   return (
@@ -59,41 +73,31 @@ export function MapPage() {
       <Banner />
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Mobile overlay */}
+
+        {/* ── Desktop overlay (hamburger → sidebar slide) ────────────────── */}
         {sidebarOpen && (
           <div
-            className="sidebar-overlay md:hidden"
+            className="sidebar-overlay hidden md:block"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* Sidebar */}
+        {/* ── Desktop sidebar (left panel, hidden on mobile) ─────────────── */}
         <div
           className={`
+            hidden md:block
             absolute md:relative z-40 md:z-auto
-            h-full
+            h-full shrink-0
             transition-transform duration-300 ease-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            md:translate-x-0
           `}
           style={{ width: 'var(--sidebar-w)' }}
         >
-          <Sidebar
-            pdvs={pdvs}
-            selectedPDV={selectedPDV}
-            nearestPDV={nearestPDV}
-            sortMode={sortMode}
-            geoStatus={geoStatus}
-            search={search}
-            loading={loading}
-            onSelectPDV={handleSelectPDV}
-            onSortChange={setSortMode}
-            onSearchChange={setSearch}
-            onRetryGeo={retry}
-          />
+          <Sidebar {...commonSidebarProps} />
         </div>
 
-        {/* Map */}
-        <div className="flex-1 relative">
+        {/* ── Map — fills remaining space (full width on mobile) ─────────── */}
+        <div className="flex-1 relative overflow-hidden">
           <MapView
             pdvs={pdvs}
             selectedPDV={selectedPDV}
@@ -101,25 +105,11 @@ export function MapPage() {
             userPosition={position}
             onSelectPDV={handleSelectPDV}
           />
-
-          {/* Mobile FAB — always rendered but invisible when sidebar open.
-               Uses env(safe-area-inset-bottom) so it clears the iOS browser toolbar
-               and the home indicator on notched devices. viewport-fit=cover enables this. */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className={`md:hidden fixed left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-mobil-red hover:bg-mobil-red-light active:scale-95 text-white text-sm font-bold px-6 py-3.5 rounded-full transition-all duration-200 ${
-              sidebarOpen ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 translate-y-0'
-            }`}
-            style={{
-              bottom: 'calc(max(20px, env(safe-area-inset-bottom, 0px)) + 16px)',
-              boxShadow: '0 4px 24px rgba(204,0,0,0.6)',
-            }}
-          >
-            <List size={16} />
-            Ver lista
-          </button>
         </div>
       </div>
+
+      {/* ── Mobile bottom drawer (replaces sidebar + FAB on phones) ───────── */}
+      <MobileDrawer {...commonSidebarProps} />
     </div>
   )
 }
