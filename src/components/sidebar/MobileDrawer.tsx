@@ -31,7 +31,7 @@ export function MobileDrawer({
   pdvs, selectedPDV, nearestPDV, sortMode, geoStatus,
   search, loading, onSelectPDV, onSortChange, onSearchChange, onRetryGeo,
 }: MobileDrawerProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true) // start open so users see the list on first load
 
   function handleSelect(pdv: PDV) {
     onSelectPDV(pdv)
