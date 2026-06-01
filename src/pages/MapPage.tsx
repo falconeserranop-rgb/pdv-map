@@ -13,7 +13,8 @@ export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false) // desktop only
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Mobile: start on list tab so users see PDVs immediately
   const [mobileTab, setMobileTab] = useState<'list' | 'map'>('list')
 
   const { status: geoStatus, position, retry } = useGeolocation()
@@ -44,7 +45,7 @@ export function MapPage() {
   function handleSelectPDV(pdv: PDV) {
     setSelectedPDV(pdv)
     setSidebarOpen(false)
-    setMobileTab('map') // switch to map so user sees the PDV
+    setMobileTab('map') // take user to map so they see the selected PDV
   }
 
   const sidebarProps = {
@@ -94,20 +95,17 @@ export function MapPage() {
       </div>
 
       {/* ── Content area ───────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
 
-        {/* ── MOBILE: Lista (full screen) ──────────────────────────────────── */}
-        <div className={`
-          flex-col w-full overflow-hidden
-          ${mobileTab === 'list' ? 'flex' : 'hidden'}
-          md:hidden
-        `}>
-          <Sidebar {...sidebarProps} />
-        </div>
+        {/* ════════ MOBILE layout (md:hidden) ════════════════════════════════
+            The MapView is ALWAYS mounted so Leaflet pre-loads tiles.
+            The list is an absolute overlay on top of the map.
+            visibility:hidden keeps the map in layout (correct sizing)
+            without painting it when the user is on the list tab.        */}
+        <div className="flex flex-1 overflow-hidden relative md:hidden">
 
-        {/* ── MOBILE: Mapa (full screen) ───────────────────────────────────── */}
-        {mobileTab === 'map' && (
-          <div className="flex flex-1 md:hidden">
+          {/* Map — always mounted, invisible while list tab is active */}
+          <div className={`absolute inset-0 ${mobileTab === 'list' ? 'invisible' : 'visible'}`}>
             <MapView
               pdvs={pdvs}
               selectedPDV={selectedPDV}
@@ -116,9 +114,18 @@ export function MapPage() {
               onSelectPDV={handleSelectPDV}
             />
           </div>
-        )}
 
-        {/* ── DESKTOP: sidebar (always visible) ────────────────────────────── */}
+          {/* List — absolute overlay, covers map when list tab is active */}
+          {mobileTab === 'list' && (
+            <div className="absolute inset-0 z-10 flex flex-col overflow-hidden">
+              <Sidebar {...sidebarProps} />
+            </div>
+          )}
+        </div>
+
+        {/* ════════ DESKTOP layout (hidden on mobile) ════════════════════════ */}
+
+        {/* Sidebar */}
         <div
           className={`
             hidden md:flex flex-col h-full shrink-0
@@ -131,12 +138,12 @@ export function MapPage() {
           <Sidebar {...sidebarProps} />
         </div>
 
-        {/* Desktop overlay when sidebar toggled */}
+        {/* Desktop overlay */}
         {sidebarOpen && (
           <div className="sidebar-overlay hidden md:block" onClick={() => setSidebarOpen(false)} />
         )}
 
-        {/* ── DESKTOP: map (always visible) ────────────────────────────────── */}
+        {/* Map */}
         <div className="hidden md:flex flex-1 relative">
           <MapView
             pdvs={pdvs}
@@ -146,6 +153,7 @@ export function MapPage() {
             onSelectPDV={handleSelectPDV}
           />
         </div>
+
       </div>
     </div>
   )
