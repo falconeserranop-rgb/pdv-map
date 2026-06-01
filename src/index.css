@@ -317,6 +317,17 @@ html, body, #root {
 /* ─── Safe-area bottom padding helper ─── */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 12px); }
 
+/* ─── Leaflet popup: hide on mobile (bottom card replaces it) ─── */
+@media (max-width: 767px) {
+  .leaflet-popup { display: none !important; }
+}
+
+/* ─── Leaflet popup: force white text on brand-red buttons (both themes) ─── */
+.leaflet-popup-content [class*="bg-mobil-red"],
+.leaflet-popup-content [class*="bg-mobil-blue"] {
+  color: #ffffff !important;
+}
+
 /* ─── Mobile: prevent iOS input zoom (must be ≥16px) ─── */
 @media (max-width: 767px) {
   input[type="text"],
