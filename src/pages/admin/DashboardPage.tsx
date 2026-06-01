@@ -311,8 +311,8 @@ export function DashboardPage() {
               </div>
             </div>
 
-            {/* ── Mobile card list (hidden on sm+) ──────────────────────────── */}
-            <div className="sm:hidden divide-y divide-white/5">
+            {/* ── Mobile card list (hidden on md+) ──────────────────────────── */}
+            <div className="md:hidden divide-y divide-white/5">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="px-4 py-4">
@@ -365,7 +365,7 @@ export function DashboardPage() {
             </div>
 
             {/* ── Desktop table (hidden on mobile) ──────────────────────────── */}
-            <div className="hidden sm:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-white/30 border-b border-white/10 text-xs">

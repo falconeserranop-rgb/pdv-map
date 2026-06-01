@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { List, Map as MapIcon } from 'lucide-react'
+import { List, Map as MapIcon, Navigation2, X, ExternalLink, Share2, MapPin } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Header } from '../components/layout/Header'
 import { Banner } from '../components/layout/Banner'
 import { Sidebar } from '../components/sidebar/Sidebar'
@@ -7,7 +8,7 @@ import { MapView } from '../components/map/MapView'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { usePDVs } from '../hooks/usePDVs'
 import type { PDV, SortMode } from '../types'
-import { haversineKm } from '../lib/geo'
+import { haversineKm, googleMapsUrl, whatsappShareUrl, formatDistance } from '../lib/geo'
 
 export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
@@ -119,6 +120,83 @@ export function MapPage() {
           {mobileTab === 'list' && (
             <div className="absolute inset-0 z-10 flex flex-col overflow-hidden">
               <Sidebar {...sidebarProps} />
+            </div>
+          )}
+
+          {/* ── Selected PDV card (map tab, PDV selected) ─────────────────
+               Slides up from the bottom — replaces the Leaflet popup on
+               mobile where small popups are hard to read and interact with. */}
+          {mobileTab === 'map' && selectedPDV && (
+            <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-safe animate-fade-up">
+              <div className="bg-carbon-900 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+                {/* Header row */}
+                <div className="flex items-start gap-3 px-4 pt-4 pb-3">
+                  <div className={`mt-0.5 w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                    nearestPDV?.id === selectedPDV.id
+                      ? 'bg-mobil-blue/20 border border-mobil-blue/40'
+                      : 'bg-mobil-red/15 border border-mobil-red/30'
+                  }`}>
+                    <MapPin size={15} className={nearestPDV?.id === selectedPDV.id ? 'text-mobil-blue' : 'text-mobil-red'} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {nearestPDV?.id === selectedPDV.id && (
+                      <span className="text-[10px] font-bold text-mobil-blue uppercase tracking-wider">
+                        El más cercano
+                        {selectedPDV.distancia !== undefined && ` · ${formatDistance(selectedPDV.distancia)}`}
+                      </span>
+                    )}
+                    <h3 className="font-display font-bold text-white text-base leading-tight truncate">
+                      {selectedPDV.nombre}
+                    </h3>
+                    <p className="text-xs text-white/50 mt-0.5">{selectedPDV.zona}</p>
+                    {selectedPDV.direccion && (
+                      <p className="text-xs text-white/30 mt-0.5">{selectedPDV.direccion}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setSelectedPDV(null)}
+                    className="p-1.5 text-white/30 hover:text-white/70 transition-colors shrink-0"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-2 px-4 pb-4">
+                  {selectedPDV.latitud && selectedPDV.longitud ? (
+                    <>
+                      <a
+                        href={googleMapsUrl(selectedPDV.latitud, selectedPDV.longitud, selectedPDV.nombre)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-2 bg-mobil-red hover:bg-mobil-red-light text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+                      >
+                        <Navigation2 size={15} />
+                        Cómo llegar
+                      </a>
+                      <a
+                        href={whatsappShareUrl(selectedPDV.nombre, selectedPDV.latitud, selectedPDV.longitud)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center bg-[#25D366]/15 border border-[#25D366]/30 text-[#25D366] text-sm font-semibold py-3 px-4 rounded-xl transition-colors"
+                      >
+                        <Share2 size={15} />
+                      </a>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center text-white/30 text-xs py-3">
+                      Sin ubicación en el mapa
+                    </div>
+                  )}
+                  <Link
+                    to={`/pdv/${selectedPDV.slug}`}
+                    className="flex items-center justify-center bg-carbon-700 hover:bg-carbon-600 text-white/70 hover:text-white text-sm font-semibold py-3 px-4 rounded-xl transition-colors"
+                    title="Ver ficha completa"
+                  >
+                    <ExternalLink size={15} />
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </div>

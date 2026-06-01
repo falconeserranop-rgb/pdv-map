@@ -314,6 +314,9 @@ html, body, #root {
   backdrop-filter: blur(2px);
 }
 
+/* ─── Safe-area bottom padding helper ─── */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 12px); }
+
 /* ─── Mobile: prevent iOS input zoom (must be ≥16px) ─── */
 @media (max-width: 767px) {
   input[type="text"],
@@ -329,16 +332,13 @@ html, body, #root {
   }
 }
 
-/* ─── Mobile: touch-action to eliminate 300ms tap delay ─── */
+/* ─── Mobile: eliminate 300ms tap delay ─── */
 button, a, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* ─── Pro quality: touch targets ─── */
-@media (max-width: 767px) {
-  button, a[role="button"] { min-height: 44px; }
-}
+/* Note: min-height NOT applied globally — toggle/pill buttons need their
+   explicit heights. Large tap targets are enforced per-component instead. */
 
 /* ─── Pro quality: focus styles ─── */
 button:focus-visible,
