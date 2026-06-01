@@ -117,12 +117,14 @@ export function MapPage() {
           />
 
           {/* Mobile list overlay — slides from the left over the map.
-              translate-x-0  = covering map (list tab)
-             -translate-x-full = slid off to the left (map tab)
-              md:hidden = never appears on desktop (desktop uses the sidebar above) */}
+              z-[1001] beats Leaflet's internal z-indexes (tiles:200,
+              markers:600, controls:800) so the list appears on top.
+              translate-x-0  = covering map (list tab active)
+             -translate-x-full = slid off left (map tab active)
+              md:hidden = never appears on desktop (desktop uses sidebar) */}
           <div
             className={`
-              absolute inset-0 z-10 flex flex-col overflow-hidden
+              absolute inset-0 z-[1001] flex flex-col overflow-hidden
               md:hidden
               transition-transform duration-300 ease-out
               ${mobileTab === 'list' ? 'translate-x-0' : '-translate-x-full'}
@@ -134,7 +136,7 @@ export function MapPage() {
           {/* Mobile PDV card — bottom sheet when a PDV is selected on map tab.
               Shows: name, directions, WhatsApp share, link to full detail page. */}
           {mobileTab === 'map' && selectedPDV && (
-            <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-safe md:hidden animate-fade-up">
+            <div className="absolute bottom-0 left-0 right-0 z-[1002] p-3 pb-safe md:hidden animate-fade-up">
               <div className="bg-carbon-900 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
 
                 {/* Name + close */}
