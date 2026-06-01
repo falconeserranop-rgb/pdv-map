@@ -82,7 +82,8 @@ export function Sidebar({
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-2"
+        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="h-20 rounded-xl bg-carbon-700/40 animate-pulse" />

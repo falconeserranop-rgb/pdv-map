@@ -231,7 +231,7 @@ export function DashboardPage() {
   }, [pdvs])
 
   return (
-    <div className="min-h-screen bg-carbon-950 flex flex-col">
+    <div className="h-full bg-carbon-950 flex flex-col overflow-hidden">
       {/* Top bar — force-dark so logos/buttons always look correct */}
       <header className="force-dark bg-carbon-900 border-b border-white/10">
         <div className="racing-stripe" />
@@ -252,7 +252,7 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex-1 p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto w-full">
         {/* Stats — 3 cols on mobile so all 5 fit without an orphan */}
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
           {[
@@ -303,15 +303,69 @@ export function DashboardPage() {
         {tab === 'pdvs' && (
           <div className="bg-carbon-900 border border-white/10 rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10">
-              <div className="relative max-w-xs">
+              <div className="relative">
                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder="Buscar por nombre, zona, código..."
-                  className="w-full bg-carbon-700 border border-white/10 text-xs text-white placeholder:text-white/25 rounded-lg pl-8 pr-3 py-2 outline-none focus:border-mobil-blue/40 transition-all" />
+                  className="w-full bg-carbon-700 border border-white/10 text-sm text-white placeholder:text-white/25 rounded-lg pl-8 pr-3 py-2.5 outline-none focus:border-mobil-blue/40 transition-all" />
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* ── Mobile card list (hidden on sm+) ──────────────────────────── */}
+            <div className="sm:hidden divide-y divide-white/5">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="px-4 py-4">
+                    <div className="h-5 bg-carbon-700/40 rounded animate-pulse mb-2 w-3/4" />
+                    <div className="h-3 bg-carbon-700/30 rounded animate-pulse w-1/3" />
+                  </div>
+                ))
+              ) : filtered.length === 0 ? (
+                <div className="px-4 py-10 text-center text-white/30 text-sm">
+                  No se encontraron PDVs
+                </div>
+              ) : (
+                filtered.map((pdv) => (
+                  <div key={pdv.id} className="px-4 py-3.5 flex items-center gap-3">
+                    {/* Name + zona */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <MapPin size={11} className={`shrink-0 ${pdv.latitud ? 'text-mobil-red' : 'text-white/20'}`} />
+                        <p className="font-semibold text-white/90 text-sm truncate">{pdv.nombre}</p>
+                      </div>
+                      <p className="text-xs text-white/40 pl-4">{pdv.zona}</p>
+                    </div>
+
+                    {/* Actions — 44×44px targets */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Status toggle */}
+                      <button
+                        onClick={() => handleToggleActive(pdv)}
+                        title={pdv.activo ? 'Desactivar' : 'Activar'}
+                        className={`relative p-0 w-11 h-6 rounded-full overflow-hidden transition-all duration-300 ${pdv.activo ? 'bg-green-500' : 'bg-mobil-red/80'}`}
+                      >
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${pdv.activo ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
+                      <button onClick={() => { setEditingPDV(pdv); setShowForm(true) }} title="Editar"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-mobil-blue/10 text-mobil-blue active:bg-mobil-blue/30">
+                        <Edit2 size={16} />
+                      </button>
+                      <button onClick={() => handleGenerateLink(pdv)} disabled={generatingLinkId === pdv.id} title="Generar link cliente"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 disabled:opacity-50 active:bg-emerald-500/25">
+                        {generatingLinkId === pdv.id ? <Loader size={14} className="animate-spin" /> : <Link2 size={16} />}
+                      </button>
+                      <button onClick={() => handleDelete(pdv)} title="Eliminar"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400 active:bg-red-500/25">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* ── Desktop table (hidden on mobile) ──────────────────────────── */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-white/30 border-b border-white/10 text-xs">

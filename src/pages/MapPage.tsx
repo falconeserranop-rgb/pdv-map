@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
+import { List, Map as MapIcon } from 'lucide-react'
 import { Header } from '../components/layout/Header'
 import { Banner } from '../components/layout/Banner'
 import { Sidebar } from '../components/sidebar/Sidebar'
-import { MobileDrawer } from '../components/sidebar/MobileDrawer'
 import { MapView } from '../components/map/MapView'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { usePDVs } from '../hooks/usePDVs'
@@ -13,22 +13,16 @@ export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
-
-  // Desktop sidebar toggle (hamburger in header).
-  // On mobile the drawer is self-contained and manages its own state.
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false) // desktop only
+  const [mobileTab, setMobileTab] = useState<'list' | 'map'>('list')
 
   const { status: geoStatus, position, retry } = useGeolocation()
   const { pdvs, loading } = usePDVs(position, sortMode, search)
 
-  // Switch sort mode when geo changes
   useEffect(() => {
-    if (geoStatus === 'granted') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSortMode('nearest')
-    } else if (geoStatus === 'denied') {
-      setSortMode('az')
-    }
+    if (geoStatus === 'granted') setSortMode('nearest')
+    else if (geoStatus === 'denied') setSortMode('az')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoStatus])
 
   const nearestPDV = useMemo(() => {
@@ -40,27 +34,21 @@ export function MapPage() {
     })[0] ?? null
   }, [position, pdvs])
 
-  // Auto-select nearest when geo is first granted
   useEffect(() => {
     if (nearestPDV && geoStatus === 'granted' && !selectedPDV) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedPDV(nearestPDV)
     }
-  }, [nearestPDV, geoStatus, selectedPDV])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearestPDV, geoStatus])
 
   function handleSelectPDV(pdv: PDV) {
     setSelectedPDV(pdv)
-    setSidebarOpen(false) // close desktop sidebar too if open
+    setSidebarOpen(false)
+    setMobileTab('map') // switch to map so user sees the PDV
   }
 
-  const commonSidebarProps = {
-    pdvs,
-    selectedPDV,
-    nearestPDV,
-    sortMode,
-    geoStatus,
-    search,
-    loading,
+  const sidebarProps = {
+    pdvs, selectedPDV, nearestPDV, sortMode, geoStatus, search, loading,
     onSelectPDV: handleSelectPDV,
     onSortChange: setSortMode,
     onSearchChange: setSearch,
@@ -72,32 +60,84 @@ export function MapPage() {
       <Header sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((o) => !o)} />
       <Banner />
 
-      <div className="flex flex-1 overflow-hidden relative">
+      {/* ── Mobile tab bar ─────────────────────────────────────────────────── */}
+      <div className="md:hidden flex shrink-0 bg-carbon-900 border-b border-white/10">
+        <button
+          onClick={() => setMobileTab('list')}
+          className={`flex-1 flex items-center justify-center gap-2 h-12 text-sm font-semibold border-b-2 transition-all ${
+            mobileTab === 'list'
+              ? 'text-white border-mobil-red'
+              : 'text-white/40 border-transparent'
+          }`}
+        >
+          <List size={16} />
+          Lista de PDVs
+          {!loading && pdvs.length > 0 && (
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+              mobileTab === 'list' ? 'bg-mobil-red text-white' : 'bg-white/10 text-white/40'
+            }`}>
+              {pdvs.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setMobileTab('map')}
+          className={`flex-1 flex items-center justify-center gap-2 h-12 text-sm font-semibold border-b-2 transition-all ${
+            mobileTab === 'map'
+              ? 'text-white border-mobil-red'
+              : 'text-white/40 border-transparent'
+          }`}
+        >
+          <MapIcon size={16} />
+          Ver mapa
+        </button>
+      </div>
 
-        {/* ── Desktop overlay (hamburger → sidebar slide) ────────────────── */}
-        {sidebarOpen && (
-          <div
-            className="sidebar-overlay hidden md:block"
-            onClick={() => setSidebarOpen(false)}
-          />
+      {/* ── Content area ───────────────────────────────────────────────────── */}
+      <div className="flex flex-1 overflow-hidden">
+
+        {/* ── MOBILE: Lista (full screen) ──────────────────────────────────── */}
+        <div className={`
+          flex-col w-full overflow-hidden
+          ${mobileTab === 'list' ? 'flex' : 'hidden'}
+          md:hidden
+        `}>
+          <Sidebar {...sidebarProps} />
+        </div>
+
+        {/* ── MOBILE: Mapa (full screen) ───────────────────────────────────── */}
+        {mobileTab === 'map' && (
+          <div className="flex flex-1 md:hidden">
+            <MapView
+              pdvs={pdvs}
+              selectedPDV={selectedPDV}
+              nearestPDV={nearestPDV}
+              userPosition={position}
+              onSelectPDV={handleSelectPDV}
+            />
+          </div>
         )}
 
-        {/* ── Desktop sidebar (left panel, hidden on mobile) ─────────────── */}
+        {/* ── DESKTOP: sidebar (always visible) ────────────────────────────── */}
         <div
           className={`
-            hidden md:block
+            hidden md:flex flex-col h-full shrink-0
             absolute md:relative z-40 md:z-auto
-            h-full shrink-0
-            transition-transform duration-300 ease-out
-            md:translate-x-0
+            transition-transform duration-300
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}
           style={{ width: 'var(--sidebar-w)' }}
         >
-          <Sidebar {...commonSidebarProps} />
+          <Sidebar {...sidebarProps} />
         </div>
 
-        {/* ── Map — fills remaining space (full width on mobile) ─────────── */}
-        <div className="flex-1 relative overflow-hidden">
+        {/* Desktop overlay when sidebar toggled */}
+        {sidebarOpen && (
+          <div className="sidebar-overlay hidden md:block" onClick={() => setSidebarOpen(false)} />
+        )}
+
+        {/* ── DESKTOP: map (always visible) ────────────────────────────────── */}
+        <div className="hidden md:flex flex-1 relative">
           <MapView
             pdvs={pdvs}
             selectedPDV={selectedPDV}
@@ -107,9 +147,6 @@ export function MapPage() {
           />
         </div>
       </div>
-
-      {/* ── Mobile bottom drawer (replaces sidebar + FAB on phones) ───────── */}
-      <MobileDrawer {...commonSidebarProps} />
     </div>
   )
 }

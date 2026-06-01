@@ -97,14 +97,17 @@
 
 html, body, #root {
   height: 100%;
+  height: 100dvh;                   /* dynamic viewport — fixes iOS Safari URL-bar overlap */
   margin: 0;
   padding: 0;
   width: 100%;
   max-width: 100%;
+  overflow: hidden;                  /* prevent outer page scroll on mobile */
   background: var(--carbon-950);
   color: #fff;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;    /* prevent font scaling on orientation change */
   text-align: left;
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -326,6 +329,12 @@ html, body, #root {
   textarea {
     font-size: 16px !important;
   }
+}
+
+/* ─── Mobile: touch-action to eliminate 300ms tap delay ─── */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ─── Pro quality: touch targets ─── */
