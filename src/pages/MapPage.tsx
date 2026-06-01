@@ -14,8 +14,6 @@ export function MapPage() {
   const [sortMode, setSortMode] = useState<SortMode>('az')
   const [search, setSearch] = useState('')
   const [selectedPDV, setSelectedPDV] = useState<PDV | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  // Mobile: start on list tab so users see PDVs immediately
   const [mobileTab, setMobileTab] = useState<'list' | 'map'>('list')
 
   const { status: geoStatus, position, retry } = useGeolocation()
@@ -45,8 +43,7 @@ export function MapPage() {
 
   function handleSelectPDV(pdv: PDV) {
     setSelectedPDV(pdv)
-    setSidebarOpen(false)
-    setMobileTab('map') // take user to map so they see the selected PDV
+    setMobileTab('map') // switch to map so user sees the selected PDV
   }
 
   const sidebarProps = {
@@ -59,7 +56,7 @@ export function MapPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <Header sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen((o) => !o)} />
+      <Header sidebarOpen={false} onToggleSidebar={() => {}} />
       <Banner />
 
       {/* ── Mobile tab bar ─────────────────────────────────────────────────── */}
@@ -67,13 +64,11 @@ export function MapPage() {
         <button
           onClick={() => setMobileTab('list')}
           className={`flex-1 flex items-center justify-center gap-2 h-12 text-sm font-semibold border-b-2 transition-all ${
-            mobileTab === 'list'
-              ? 'text-white border-mobil-red'
-              : 'text-white/40 border-transparent'
+            mobileTab === 'list' ? 'text-white border-mobil-red' : 'text-white/40 border-transparent'
           }`}
         >
           <List size={16} />
-          Lista de PDVs
+          Lista
           {!loading && pdvs.length > 0 && (
             <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
               mobileTab === 'list' ? 'bg-mobil-red text-white' : 'bg-white/10 text-white/40'
@@ -85,64 +80,80 @@ export function MapPage() {
         <button
           onClick={() => setMobileTab('map')}
           className={`flex-1 flex items-center justify-center gap-2 h-12 text-sm font-semibold border-b-2 transition-all ${
-            mobileTab === 'map'
-              ? 'text-white border-mobil-red'
-              : 'text-white/40 border-transparent'
+            mobileTab === 'map' ? 'text-white border-mobil-red' : 'text-white/40 border-transparent'
           }`}
         >
           <MapIcon size={16} />
-          Ver mapa
+          Mapa
         </button>
       </div>
 
-      {/* ── Content area ───────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden relative">
+      {/* ═══════════════════════════════════════════════════════════════════
+          SINGLE MapView always in DOM — no duplication, no black screens.
 
-        {/* ════════ MOBILE layout (md:hidden) ════════════════════════════════
-            The MapView is ALWAYS mounted so Leaflet pre-loads tiles.
-            The list is an absolute overlay on top of the map.
-            visibility:hidden keeps the map in layout (correct sizing)
-            without painting it when the user is on the list tab.        */}
-        <div className="flex flex-1 overflow-hidden relative md:hidden">
+          Desktop: sidebar on left (hidden md:flex), map on right (flex-1).
+          Mobile:  map takes full space; list slides over it as an overlay.
+          ═══════════════════════════════════════════════════════════════════ */}
+      <div className="flex flex-1 overflow-hidden">
 
-          {/* Map — always mounted, invisible while list tab is active */}
-          <div className={`absolute inset-0 ${mobileTab === 'list' ? 'invisible' : 'visible'}`}>
-            <MapView
-              pdvs={pdvs}
-              selectedPDV={selectedPDV}
-              nearestPDV={nearestPDV}
-              userPosition={position}
-              onSelectPDV={handleSelectPDV}
-            />
+        {/* ── Desktop sidebar (never shown on mobile) ──────────────────────── */}
+        <div
+          className="hidden md:flex flex-col h-full shrink-0"
+          style={{ width: 'var(--sidebar-w)' }}
+        >
+          <Sidebar {...sidebarProps} />
+        </div>
+
+        {/* ── Map + mobile overlays ─────────────────────────────────────────── */}
+        <div className="flex-1 relative overflow-hidden">
+
+          {/* The one and only MapView */}
+          <MapView
+            pdvs={pdvs}
+            selectedPDV={selectedPDV}
+            nearestPDV={nearestPDV}
+            userPosition={position}
+            onSelectPDV={handleSelectPDV}
+          />
+
+          {/* Mobile list overlay — slides from the left over the map.
+              translate-x-0  = covering map (list tab)
+             -translate-x-full = slid off to the left (map tab)
+              md:hidden = never appears on desktop (desktop uses the sidebar above) */}
+          <div
+            className={`
+              absolute inset-0 z-10 flex flex-col overflow-hidden
+              md:hidden
+              transition-transform duration-300 ease-out
+              ${mobileTab === 'list' ? 'translate-x-0' : '-translate-x-full'}
+            `}
+          >
+            <Sidebar {...sidebarProps} />
           </div>
 
-          {/* List — absolute overlay, covers map when list tab is active */}
-          {mobileTab === 'list' && (
-            <div className="absolute inset-0 z-10 flex flex-col overflow-hidden">
-              <Sidebar {...sidebarProps} />
-            </div>
-          )}
-
-          {/* ── Selected PDV card (map tab, PDV selected) ─────────────────
-               Slides up from the bottom — replaces the Leaflet popup on
-               mobile where small popups are hard to read and interact with. */}
+          {/* Mobile PDV card — bottom sheet when a PDV is selected on map tab.
+              Shows: name, directions, WhatsApp share, link to full detail page. */}
           {mobileTab === 'map' && selectedPDV && (
-            <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-safe animate-fade-up">
+            <div className="absolute bottom-0 left-0 right-0 z-20 p-3 pb-safe md:hidden animate-fade-up">
               <div className="bg-carbon-900 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
-                {/* Header row */}
+
+                {/* Name + close */}
                 <div className="flex items-start gap-3 px-4 pt-4 pb-3">
                   <div className={`mt-0.5 w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                     nearestPDV?.id === selectedPDV.id
                       ? 'bg-mobil-blue/20 border border-mobil-blue/40'
                       : 'bg-mobil-red/15 border border-mobil-red/30'
                   }`}>
-                    <MapPin size={15} className={nearestPDV?.id === selectedPDV.id ? 'text-mobil-blue' : 'text-mobil-red'} />
+                    <MapPin size={15} className={
+                      nearestPDV?.id === selectedPDV.id ? 'text-mobil-blue' : 'text-mobil-red'
+                    } />
                   </div>
                   <div className="flex-1 min-w-0">
                     {nearestPDV?.id === selectedPDV.id && (
-                      <span className="text-[10px] font-bold text-mobil-blue uppercase tracking-wider">
+                      <span className="block text-[10px] font-bold text-mobil-blue uppercase tracking-wider mb-0.5">
                         El más cercano
-                        {selectedPDV.distancia !== undefined && ` · ${formatDistance(selectedPDV.distancia)}`}
+                        {selectedPDV.distancia != null && selectedPDV.distancia !== Infinity
+                          && ` · ${formatDistance(selectedPDV.distancia)}`}
                       </span>
                     )}
                     <h3 className="font-display font-bold text-white text-base leading-tight truncate">
@@ -150,12 +161,12 @@ export function MapPage() {
                     </h3>
                     <p className="text-xs text-white/50 mt-0.5">{selectedPDV.zona}</p>
                     {selectedPDV.direccion && (
-                      <p className="text-xs text-white/30 mt-0.5">{selectedPDV.direccion}</p>
+                      <p className="text-xs text-white/30 mt-0.5 truncate">{selectedPDV.direccion}</p>
                     )}
                   </div>
                   <button
                     onClick={() => setSelectedPDV(null)}
-                    className="p-1.5 text-white/30 hover:text-white/70 transition-colors shrink-0"
+                    className="p-1.5 text-white/30 hover:text-white/60 transition-colors shrink-0"
                   >
                     <X size={16} />
                   </button>
@@ -178,60 +189,28 @@ export function MapPage() {
                         href={whatsappShareUrl(selectedPDV.nombre, selectedPDV.latitud, selectedPDV.longitud)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center bg-[#25D366]/15 border border-[#25D366]/30 text-[#25D366] text-sm font-semibold py-3 px-4 rounded-xl transition-colors"
+                        className="flex items-center justify-center bg-[#25D366]/15 border border-[#25D366]/30 text-[#25D366] py-3 px-4 rounded-xl transition-colors"
                       >
                         <Share2 size={15} />
                       </a>
                     </>
                   ) : (
-                    <div className="flex-1 flex items-center justify-center text-white/30 text-xs py-3">
-                      Sin ubicación en el mapa
-                    </div>
+                    <span className="flex-1 text-xs text-white/30 py-3 text-center">Sin ubicación</span>
                   )}
                   <Link
                     to={`/pdv/${selectedPDV.slug}`}
-                    className="flex items-center justify-center bg-carbon-700 hover:bg-carbon-600 text-white/70 hover:text-white text-sm font-semibold py-3 px-4 rounded-xl transition-colors"
+                    className="flex items-center justify-center bg-carbon-700 hover:bg-carbon-600 text-white/60 hover:text-white py-3 px-4 rounded-xl transition-colors"
                     title="Ver ficha completa"
                   >
                     <ExternalLink size={15} />
                   </Link>
                 </div>
+
               </div>
             </div>
           )}
+
         </div>
-
-        {/* ════════ DESKTOP layout (hidden on mobile) ════════════════════════ */}
-
-        {/* Sidebar */}
-        <div
-          className={`
-            hidden md:flex flex-col h-full shrink-0
-            absolute md:relative z-40 md:z-auto
-            transition-transform duration-300
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          `}
-          style={{ width: 'var(--sidebar-w)' }}
-        >
-          <Sidebar {...sidebarProps} />
-        </div>
-
-        {/* Desktop overlay */}
-        {sidebarOpen && (
-          <div className="sidebar-overlay hidden md:block" onClick={() => setSidebarOpen(false)} />
-        )}
-
-        {/* Map */}
-        <div className="hidden md:flex flex-1 relative">
-          <MapView
-            pdvs={pdvs}
-            selectedPDV={selectedPDV}
-            nearestPDV={nearestPDV}
-            userPosition={position}
-            onSelectPDV={handleSelectPDV}
-          />
-        </div>
-
       </div>
     </div>
   )
