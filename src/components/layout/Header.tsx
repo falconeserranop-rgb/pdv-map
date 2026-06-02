@@ -4,9 +4,11 @@ import { useTheme } from '../../context/ThemeContext'
 interface HeaderProps {
   sidebarOpen: boolean
   onToggleSidebar: () => void
+  /** Set false to hide the mobile hamburger (e.g. when tabs replace the sidebar) */
+  showMobileMenu?: boolean
 }
 
-export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
+export function Header({ sidebarOpen, onToggleSidebar, showMobileMenu = true }: HeaderProps) {
   const { theme, toggleTheme } = useTheme()
 
   return (
@@ -16,15 +18,17 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           the title is pinned to the exact horizontal centre on desktop.       */}
       <div className="relative flex items-center justify-between px-3 sm:px-4 h-14">
 
-        {/* Left: hamburger (mobile only) + Mobil logo */}
+        {/* Left: hamburger (mobile, optional) + Mobil logo */}
         <div className="flex items-center gap-2 sm:gap-3 relative z-10">
-          <button
-            onClick={onToggleSidebar}
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 active:bg-white/15 transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {showMobileMenu && (
+            <button
+              onClick={onToggleSidebar}
+              className="md:hidden p-2 rounded-lg hover:bg-white/10 active:bg-white/15 transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          )}
           <img
             src="/mobil-logo.png"
             alt="Mobil"

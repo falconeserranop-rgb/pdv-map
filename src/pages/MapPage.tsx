@@ -56,7 +56,7 @@ export function MapPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <Header sidebarOpen={false} onToggleSidebar={() => {}} />
+      <Header sidebarOpen={false} onToggleSidebar={() => {}} showMobileMenu={false} />
       <Banner />
 
       {/* ── Mobile tab bar ─────────────────────────────────────────────────── */}
@@ -201,7 +201,7 @@ export function MapPage() {
                   )}
                   <Link
                     to={`/pdv/${selectedPDV.slug}`}
-                    className="flex items-center justify-center bg-carbon-700 hover:bg-carbon-600 text-white/60 hover:text-white py-3 px-4 rounded-xl transition-colors"
+                    className="flex items-center justify-center bg-carbon-700 hover:bg-carbon-600 text-white py-3 px-4 rounded-xl transition-colors"
                     title="Ver ficha completa"
                   >
                     <ExternalLink size={15} />
