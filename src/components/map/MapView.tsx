@@ -34,21 +34,10 @@ function createUserIcon() {
   })
 }
 
-function FlyToPDV({ pdv }: { pdv: PDV | null }) {
-  const map = useMap()
-  useEffect(() => {
-    if (pdv?.latitud && pdv?.longitud) {
-      map.flyTo([pdv.latitud, pdv.longitud], 16, { animate: true, duration: 1.2 })
-    }
-  }, [pdv, map])
-  return null
-}
-
-// Opens the Leaflet popup for the selected PDV once flyTo finishes.
-// Uses moveend (fires when animation completes) so the popup appears
-// centered on screen — not mid-flight. Desktop only; mobile uses the
-// bottom card overlay instead.
-function PopupOpener({
+// Unified handler: close old popup → fly to PDV → open new popup.
+// Responds to selectedPDV.id changes so selecting a different PDV
+// always closes the previous ficha and opens the next one.
+function SelectionHandler({
   selectedPDV,
   markerRefs,
 }: {
@@ -56,17 +45,29 @@ function PopupOpener({
   markerRefs: React.MutableRefObject<Record<string, L.Marker>>
 }) {
   const map = useMap()
+
   useEffect(() => {
-    if (!selectedPDV?.id) return
-    const handler = () => {
-      const marker = markerRefs.current[selectedPDV.id]
-      marker?.openPopup()
-    }
-    // moveend fires once flyTo animation completes
-    map.once('moveend', handler)
-    return () => { map.off('moveend', handler) }
+    // Close any open popup immediately (handles switching + deselect)
+    map.closePopup()
+
+    if (!selectedPDV?.latitud || !selectedPDV?.longitud) return
+
+    const markerId = selectedPDV.id
+
+    // Fly to selected PDV
+    map.flyTo([selectedPDV.latitud, selectedPDV.longitud], 16, {
+      animate: true,
+      duration: 1.0,
+    })
+
+    // Open popup once fly animation finishes
+    const openPopup = () => markerRefs.current[markerId]?.openPopup()
+    map.once('moveend', openPopup)
+
+    return () => { map.off('moveend', openPopup) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPDV?.id])
+
   return null
 }
 
@@ -80,7 +81,7 @@ interface MapViewProps {
 
 export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectPDV }: MapViewProps) {
   const withCoords = pdvs.filter((p) => p.latitud != null && p.longitud != null)
-  // Stable ref map: id → Leaflet Marker instance, used by PopupOpener
+  // Stable ref map: id → Leaflet Marker instance, used by SelectionHandler
   const markerRefs = useRef<Record<string, L.Marker>>({})
 
   const center: [number, number] = nearestPDV?.latitud
@@ -92,9 +93,7 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
   return (
     <MapContainer center={center} zoom={12} className="h-full w-full" zoomControl>
       <ThemeAwareTiles />
-      <FlyToPDV pdv={selectedPDV} />
-      {/* FlyToPDV runs first (fires moveend), then PopupOpener opens popup */}
-      <PopupOpener selectedPDV={selectedPDV} markerRefs={markerRefs} />
+      <SelectionHandler selectedPDV={selectedPDV} markerRefs={markerRefs} />
 
       {/* User location */}
       {userPosition && (
@@ -108,7 +107,7 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
         </>
       )}
 
-      {/* PDV markers — ref stored for programmatic popup opening */}
+      {/* PDV markers — ref stored so SelectionHandler can call openPopup() */}
       {withCoords.map((pdv) => {
         const isNearest = nearestPDV?.id === pdv.id
         return (
