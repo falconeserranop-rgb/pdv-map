@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { MapContainer, Marker, Popup, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -44,6 +44,32 @@ function FlyToPDV({ pdv }: { pdv: PDV | null }) {
   return null
 }
 
+// Opens the Leaflet popup for the selected PDV once flyTo finishes.
+// Uses moveend (fires when animation completes) so the popup appears
+// centered on screen — not mid-flight. Desktop only; mobile uses the
+// bottom card overlay instead.
+function PopupOpener({
+  selectedPDV,
+  markerRefs,
+}: {
+  selectedPDV: PDV | null
+  markerRefs: React.MutableRefObject<Record<string, L.Marker>>
+}) {
+  const map = useMap()
+  useEffect(() => {
+    if (!selectedPDV?.id) return
+    const handler = () => {
+      const marker = markerRefs.current[selectedPDV.id]
+      marker?.openPopup()
+    }
+    // moveend fires once flyTo animation completes
+    map.once('moveend', handler)
+    return () => { map.off('moveend', handler) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPDV?.id])
+  return null
+}
+
 interface MapViewProps {
   pdvs: PDV[]
   selectedPDV: PDV | null
@@ -54,6 +80,8 @@ interface MapViewProps {
 
 export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectPDV }: MapViewProps) {
   const withCoords = pdvs.filter((p) => p.latitud != null && p.longitud != null)
+  // Stable ref map: id → Leaflet Marker instance, used by PopupOpener
+  const markerRefs = useRef<Record<string, L.Marker>>({})
 
   const center: [number, number] = nearestPDV?.latitud
     ? [nearestPDV.latitud, nearestPDV.longitud!]
@@ -63,11 +91,10 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
 
   return (
     <MapContainer center={center} zoom={12} className="h-full w-full" zoomControl>
-      {/* ThemeAwareTiles swaps between Voyager (light) and Positron (dark)
-          using the Leaflet API directly — guaranteed to react to theme changes */}
       <ThemeAwareTiles />
-
       <FlyToPDV pdv={selectedPDV} />
+      {/* FlyToPDV runs first (fires moveend), then PopupOpener opens popup */}
+      <PopupOpener selectedPDV={selectedPDV} markerRefs={markerRefs} />
 
       {/* User location */}
       {userPosition && (
@@ -81,12 +108,13 @@ export function MapView({ pdvs, selectedPDV, nearestPDV, userPosition, onSelectP
         </>
       )}
 
-      {/* PDV markers */}
+      {/* PDV markers — ref stored for programmatic popup opening */}
       {withCoords.map((pdv) => {
         const isNearest = nearestPDV?.id === pdv.id
         return (
           <Marker
             key={pdv.id}
+            ref={(m) => { if (m) markerRefs.current[pdv.id] = m }}
             position={[pdv.latitud!, pdv.longitud!]}
             icon={createPDVIcon(isNearest)}
             eventHandlers={{ click: () => onSelectPDV(pdv) }}
